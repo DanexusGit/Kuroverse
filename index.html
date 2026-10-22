@@ -5715,7 +5715,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           "A patrulha da HIDRA protege a primeira âncora. Elimine todos os hostis para abrir o setor.",
         dialogue:
           "Interceptação: a rede da HIDRA voltou a emitir a partir das ruínas de Berlim.",
-        action: "Elimine a patrulha e mantenha a âncora fora do alcance inimigo.",
+        action:
+          "Elimine a patrulha e mantenha a âncora fora do alcance inimigo.",
       },
       {
         title: "REFORÇOS · CERCO DA HIDRA",
@@ -5769,7 +5770,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           "Drones de Ultron ocuparam as ruínas de Sokovia. Elimine a patrulha para chegar à malha de guerra.",
         dialogue:
           "Sinal de emergência: Ultron reativou os drones e bloqueou a rede de Sokovia.",
-        action: "Derrube a patrulha sintética e mantenha o núcleo da cidade protegido.",
+        action:
+          "Derrube a patrulha sintética e mantenha o núcleo da cidade protegido.",
       },
       {
         title: "REFORÇOS · MALHA DE SOKOVIA",
@@ -5777,7 +5779,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           "A malha de Ultron chama reforços. Elimine a onda e abra uma janela para atingir o núcleo.",
         dialogue:
           "Interceptação: a grade de defesa está ativa. Mais drones convergem para o setor.",
-        action: "Limpe o setor e interrompa a formação antes do protocolo final.",
+        action:
+          "Limpe o setor e interrompa a formação antes do protocolo final.",
       },
     ],
     thanos: [
@@ -5787,7 +5790,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           "A guarda de Thanos protege a rota até a Manopla. Elimine os hostis que cercam a arena.",
         dialogue:
           "Leitura cósmica: a Manopla está carregando. A guarda de Thanos bloqueia o acesso.",
-        action: "Elimine a primeira linha de defesa e mantenha a Manopla sob vigilância.",
+        action:
+          "Elimine a primeira linha de defesa e mantenha a Manopla sob vigilância.",
       },
       {
         title: "REFORÇOS · GUARDA TITÂNICA",
@@ -5813,7 +5817,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           "A corrupção invade o Epicentro. Limpe a segunda onda para expor o núcleo do Vazio.",
         dialogue:
           "Alerta final: as âncoras estão sob pressão. A presença de Bob responde dentro da Fenda.",
-        action: "Derrote os reforços e prepare o confronto que encerrará o Pacto.",
+        action:
+          "Derrote os reforços e prepare o confronto que encerrará o Pacto.",
       },
     ],
   };
@@ -5875,7 +5880,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
             title: `AVANÇO · ${stage.location}`,
             brief: `Elimine a patrulha de ${stage.boss} para abrir caminho até a âncora.`,
             dialogue: `Alerta do Nexus: hostis protegem o setor de ${stage.location}.`,
-            action: "Elimine todos os inimigos da onda e mantenha a âncora segura.",
+            action:
+              "Elimine todos os inimigos da onda e mantenha a âncora segura.",
           },
           {
             title: `REFORÇOS · ${stage.location}`,
@@ -5899,7 +5905,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
             brief: act.brief,
             dialogue: act.dialogue,
             action: act.action,
-            objective: phase === 1 ? "ELIMINE A PATRULHA" : "ELIMINE OS REFORÇOS",
+            objective:
+              phase === 1 ? "ELIMINE A PATRULHA" : "ELIMINE OS REFORÇOS",
             enemyBudget: 10 + stageIndex * 2 + (phase - 1) * 3,
             heroLines: heroBriefings,
             resultCopy: `Objetivo cumprido: ${act.title.toLowerCase()}. O setor está limpo e a próxima fase foi liberada.`,
@@ -5917,7 +5924,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           phaseName: `CONFRONTO · ${stage.boss}`,
           title: `CONFRONTO · ${stage.boss}`,
           brief: `Derrote ${stage.boss} e estabilize a âncora do Nexus. Esta é a luta final do capítulo.`,
-          dialogue: stage.bossQuote || `${stage.boss} guarda a âncora deste setor.`,
+          dialogue:
+            stage.bossQuote || `${stage.boss} guarda a âncora deste setor.`,
           action: `Derrote ${stage.boss} e impeça que a Fenda avance.`,
           objective: `DERROTE ${stage.boss}`,
           enemyBudget: 0,
@@ -5933,466 +5941,787 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(globalThis);
 
-/* Dependency-free low-poly 3D environment geometry for the single-file game. */
+/* Compact, deterministic low-poly world meshes and matching solid footprints. */
 (function registerStage3DGeometry(root) {
   const TAU = Math.PI * 2;
-  const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
+  const ids = ["redskull", "mysterio", "magneto", "ultron", "thanos", "void"];
+  const clamp = (n, min = 0, max = 1) => Math.max(min, Math.min(max, n));
 
-  function hexColor(value, fallback = [0.15, 0.15, 0.2]) {
-    if (Array.isArray(value)) return value.slice(0, 3).map((v) => clamp(v));
+  function hexColor(value, fallback = [0.12, 0.14, 0.19]) {
+    if (Array.isArray(value)) return value.slice(0, 3).map((n) => clamp(n));
     const text = String(value || "").trim();
     if (/^#[\da-f]{3}$/i.test(text))
-      return [...text.slice(1)].map((v) => parseInt(v + v, 16) / 255);
+      return [...text.slice(1)].map((n) => parseInt(n + n, 16) / 255);
     if (/^#[\da-f]{6}$/i.test(text))
       return [1, 3, 5].map((i) => parseInt(text.slice(i, i + 2), 16) / 255);
-    const rgb = text.match(/^(?:rgba?\()?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
-    return rgb ? rgb.slice(1).map((v) => clamp(Number(v) / 255)) : fallback.slice();
+    const rgb = text.match(
+      /^(?:rgba?\()?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i,
+    );
+    return rgb
+      ? rgb.slice(1).map((n) => clamp(Number(n) / 255))
+      : fallback.slice();
   }
 
-  function tint(color, toward, amount) {
-    return color.map((value, i) => value * (1 - amount) + toward[i] * amount);
-  }
+  const tint = (a, b, t) => a.map((n, i) => n * (1 - t) + b[i] * t);
+  const shade = (a, n) => a.map((v) => clamp(v * n));
 
-  function shade(color, factor) {
-    return color.map((value) => clamp(value * factor));
-  }
-
-  function makeRandom(seed) {
-    let state = (seed >>> 0) || 1;
-    return () => {
-      state = (state * 1664525 + 1013904223) >>> 0;
-      return state / 4294967296;
-    };
+  function randomFor(seed) {
+    let state = seed >>> 0 || 1;
+    return () => (
+      (state = (state * 1664525 + 1013904223) >>> 0),
+      state / 4294967296
+    );
   }
 
   function normalOf(a, b, c) {
     const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
     const ac = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-    const n = [
+    const cross = [
       ab[1] * ac[2] - ab[2] * ac[1],
       ab[2] * ac[0] - ab[0] * ac[2],
       ab[0] * ac[1] - ab[1] * ac[0],
     ];
-    const length = Math.hypot(n[0], n[1], n[2]) || 1;
-    return n.map((v) => v / length);
+    const length = Math.hypot(...cross) || 1;
+    return cross.map((v) => v / length);
   }
 
-  function makeStageGeometry(stageIndex, width, height, stage, viewportWidth, viewportHeight) {
-    const vertices = [];
-    const id = stage?.id || ["redskull", "mysterio", "magneto", "ultron", "thanos", "void"][stageIndex % 6];
-    const biome = stage?.biome || {};
-    const floor = hexColor(biome.floor, [0.07, 0.08, 0.13]);
-    const deep = hexColor(biome.blob, [0.15, 0.1, 0.25]);
-    const secondary = hexColor(biome.blob2, [0.08, 0.09, 0.16]);
-    const accent = hexColor(biome.accent, [0.35, 0.75, 1]);
-    const white = [0.72, 0.79, 0.9];
-    const darkMetal = tint(floor, [0.04, 0.06, 0.11], 0.55);
-    // The engine spawns the 2D hero at half the viewport dimensions, near the
-    // upper-left of its larger world. Put the 3D combat landmark under that spawn.
-    const centerX = Math.max(80, Math.min(width - 80, (Number(viewportWidth) || width * 0.4) / 2));
-    const centerZ = Math.max(80, Math.min(height - 80, (Number(viewportHeight) || height * 0.4) / 2));
-    const worldCenterX = width / 2;
-    const worldCenterZ = height / 2;
-    const random = makeRandom(0x4b5552 + stageIndex * 1877 + Math.round(width + height));
+  function makeStageLayout(
+    stageIndex,
+    width,
+    height,
+    stage,
+    viewportWidth,
+    viewportHeight,
+  ) {
+    const id =
+      stage?.id || ids[((stageIndex % ids.length) + ids.length) % ids.length];
+    const centerX = clamp(
+      (Number(viewportWidth) || width * 0.4) / 2,
+      100,
+      width - 100,
+    );
+    const centerZ = clamp(
+      (Number(viewportHeight) || height * 0.4) / 2,
+      100,
+      height - 100,
+    );
+    const random = randomFor(
+      0x4b5552 + stageIndex * 1877 + Math.round(width + height),
+    );
+    const objects = [];
+    const add = (type, x, z, w, d, h, options = {}) => {
+      objects.push({
+        type,
+        x,
+        z,
+        w,
+        d,
+        h,
+        rotation: options.rotation || 0,
+        variant: options.variant || 0,
+        solid: options.solid !== false,
+        float: options.float || 0,
+      });
+    };
 
-    const vertex = (p, n, color) =>
-      vertices.push(p[0], p[1], p[2], n[0], n[1], n[2], color[0], color[1], color[2]);
+    // A clear fight plaza under the spawn, with readable blocks around it.
+    const columns = 5,
+      rows = 4;
+    for (let row = 0; row < rows; row++) {
+      const z = 125 + (height - 250) * (row / (rows - 1));
+      for (let column = 0; column < columns; column++) {
+        const x = 135 + (width - 270) * (column / (columns - 1));
+        const dx = x - centerX,
+          dz = z - centerZ;
+        if (Math.hypot(dx, dz) < 380 || random() < 0.12) continue;
+        const turn = (random() - 0.5) * 0.28;
+        if (id === "redskull") {
+          add(
+            random() < 0.36 ? "rubble" : "ruin",
+            x,
+            z,
+            92 + random() * 55,
+            76 + random() * 46,
+            74 + random() * 105,
+            { rotation: turn, variant: column + row },
+          );
+        } else if (id === "mysterio") {
+          add(
+            "tower",
+            x,
+            z,
+            90 + random() * 48,
+            78 + random() * 42,
+            132 + random() * 125,
+            { rotation: turn, variant: column + row },
+          );
+        } else if (id === "magneto") {
+          add(
+            random() < 0.34 ? "obelisk" : "island",
+            x,
+            z,
+            78 + random() * 55,
+            68 + random() * 46,
+            82 + random() * 104,
+            {
+              rotation: turn,
+              variant: column + row,
+              float: random() < 0.4 ? 15 + random() * 20 : 0,
+            },
+          );
+        } else if (id === "ultron") {
+          add(
+            random() < 0.48 ? "droneTower" : "ruin",
+            x,
+            z,
+            88 + random() * 48,
+            76 + random() * 42,
+            106 + random() * 116,
+            { rotation: turn, variant: column + row },
+          );
+        } else if (id === "thanos") {
+          add(
+            random() < 0.35 ? "pillar" : "mesa",
+            x,
+            z,
+            82 + random() * 62,
+            76 + random() * 48,
+            68 + random() * 105,
+            {
+              rotation: turn,
+              variant: column + row,
+              float: random() < 0.2 ? 12 : 0,
+            },
+          );
+        } else {
+          add(
+            random() < 0.42 ? "obelisk" : "shard",
+            x,
+            z,
+            70 + random() * 54,
+            64 + random() * 42,
+            112 + random() * 140,
+            {
+              rotation: turn,
+              variant: column + row,
+              float: random() < 0.35 ? 12 + random() * 18 : 0,
+            },
+          );
+        }
+      }
+    }
+
+    // A few landmarks sit just outside the plaza and frame the camera view.
+    const landmarkAngles = id === "void" ? 6 : 4;
+    for (let i = 0; i < landmarkAngles; i++) {
+      const angle = (i / landmarkAngles) * TAU + Math.PI / 8;
+      const x = clamp(centerX + Math.cos(angle) * 410, 90, width - 90);
+      const z = clamp(centerZ + Math.sin(angle) * 310, 90, height - 90);
+      if (Math.hypot(x - centerX, z - centerZ) < 325) continue;
+      if (id === "redskull" || id === "ultron")
+        add("barricade", x, z, 90, 22, 40 + random() * 24, {
+          rotation: angle,
+          variant: i,
+        });
+      else if (id === "mysterio")
+        add("tower", x, z, 76, 70, 120 + random() * 70, {
+          rotation: angle,
+          variant: i,
+        });
+      else if (id === "magneto")
+        add("obelisk", x, z, 68, 66, 105 + random() * 60, {
+          rotation: angle,
+          variant: i,
+          float: 22,
+        });
+      else if (id === "thanos")
+        add("pillar", x, z, 54, 54, 110 + random() * 50, {
+          rotation: angle,
+          variant: i,
+        });
+      else
+        add("shard", x, z, 64, 60, 130 + random() * 80, {
+          rotation: angle,
+          variant: i,
+        });
+    }
+    return { id, centerX, centerZ, objects };
+  }
+
+  function collidersFromLayout(layout) {
+    return layout.objects
+      .filter((object) => object.solid)
+      .map((o) => {
+        if (["tower", "ruin", "barricade", "droneTower"].includes(o.type))
+          return {
+            type: "rect",
+            x: o.x,
+            y: o.z,
+            halfW: o.w * 0.5 + 7,
+            halfH: o.d * 0.5 + 7,
+            rotation: o.rotation,
+          };
+        const radius =
+          Math.max(o.w, o.d) * (o.type === "rubble" ? 0.43 : 0.48) + 6;
+        return { type: "circle", x: o.x, y: o.z, radius };
+      });
+  }
+
+  function makeStageColliders(
+    stageIndex,
+    width,
+    height,
+    stage,
+    viewportWidth,
+    viewportHeight,
+  ) {
+    return collidersFromLayout(
+      makeStageLayout(
+        stageIndex,
+        width,
+        height,
+        stage,
+        viewportWidth,
+        viewportHeight,
+      ),
+    );
+  }
+
+  function makeStageData(
+    stageIndex,
+    width,
+    height,
+    stage,
+    viewportWidth,
+    viewportHeight,
+  ) {
+    const layout = makeStageLayout(
+      stageIndex,
+      width,
+      height,
+      stage,
+      viewportWidth,
+      viewportHeight,
+    );
+    const id = layout.id;
+    const biome = stage?.biome || {};
+    const floor = hexColor(biome.floor, [0.09, 0.12, 0.15]);
+    const accent = hexColor(biome.accent, [0.31, 0.72, 0.91]);
+    const secondary = hexColor(biome.blob2, [0.14, 0.17, 0.21]);
+    const deep = hexColor(biome.blob, [0.24, 0.17, 0.16]);
+    const white = [0.82, 0.87, 0.9];
+    const random = randomFor(
+      0x4b5552 + stageIndex * 1877 + Math.round(width + height),
+    );
+    const vertices = [];
+    const vertex = (p, n, c) =>
+      vertices.push(p[0], p[1], p[2], n[0], n[1], n[2], c[0], c[1], c[2]);
     const triangle = (a, b, c, normal, color) => {
       vertex(a, normal, color);
       vertex(b, normal, color);
       vertex(c, normal, color);
     };
-    const triangleAutoNormal = (a, b, c, color) => triangle(a, b, c, normalOf(a, b, c), color);
+    const autoTriangle = (a, b, c, color) =>
+      triangle(a, b, c, normalOf(a, b, c), color);
     const quad = (a, b, c, d, normal, color) => {
       triangle(a, b, c, normal, color);
       triangle(a, c, d, normal, color);
     };
-    const groundQuad = (x0, z0, x1, z1, y, color) =>
-      quad([x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1], [0, 1, 0], color);
+    const flat = (x0, z0, x1, z1, y, color) =>
+      quad(
+        [x0, y, z0],
+        [x1, y, z0],
+        [x1, y, z1],
+        [x0, y, z1],
+        [0, 1, 0],
+        color,
+      );
 
     const box = (x, z, w, h, d, color, rotation = 0, baseY = 0) => {
-      const hw = w / 2;
-      const hd = d / 2;
-      const cos = Math.cos(rotation);
-      const sin = Math.sin(rotation);
-      const point = (dx, y, dz) => [
-        x + dx * cos + dz * sin,
+      const c = Math.cos(rotation),
+        s = Math.sin(rotation),
+        hw = w * 0.5,
+        hd = d * 0.5;
+      const p = (dx, y, dz) => [
+        x + dx * c + dz * s,
         baseY + y,
-        z - dx * sin + dz * cos,
+        z - dx * s + dz * c,
       ];
-      const nrm = (nx, ny, nz) => [nx * cos + nz * sin, ny, -nx * sin + nz * cos];
-      const a = point(-hw, 0, -hd);
-      const b = point(hw, 0, -hd);
-      const c = point(hw, 0, hd);
-      const d0 = point(-hw, 0, hd);
-      const e = point(-hw, h, -hd);
-      const f = point(hw, h, -hd);
-      const g = point(hw, h, hd);
-      const h0 = point(-hw, h, hd);
-      quad(e, f, g, h0, nrm(0, 1, 0), tint(color, white, 0.08));
-      quad(d0, c, b, a, nrm(0, -1, 0), shade(color, 0.45));
-      quad(h0, g, c, d0, nrm(0, 0, 1), shade(color, 0.86));
-      quad(f, e, a, b, nrm(0, 0, -1), shade(color, 0.68));
-      quad(e, h0, d0, a, nrm(-1, 0, 0), shade(color, 0.74));
-      quad(g, f, b, c, nrm(1, 0, 0), tint(color, accent, 0.05));
+      const n = (nx, ny, nz) => [nx * c + nz * s, ny, -nx * s + nz * c];
+      const a = p(-hw, 0, -hd),
+        b = p(hw, 0, -hd),
+        c0 = p(hw, 0, hd),
+        d0 = p(-hw, 0, hd);
+      const e = p(-hw, h, -hd),
+        f = p(hw, h, -hd),
+        g = p(hw, h, hd),
+        h0 = p(-hw, h, hd);
+      quad(e, f, g, h0, n(0, 1, 0), tint(color, white, 0.1));
+      quad(d0, c0, b, a, n(0, -1, 0), shade(color, 0.5));
+      quad(h0, g, c0, d0, n(0, 0, 1), shade(color, 0.9));
+      quad(f, e, a, b, n(0, 0, -1), shade(color, 0.68));
+      quad(e, h0, d0, a, n(-1, 0, 0), shade(color, 0.78));
+      quad(g, f, b, c0, n(1, 0, 0), tint(color, accent, 0.04));
     };
 
-    const cylinder = (x, z, radius, height3d, sides, color, baseY = 0) => {
-      const count = Math.max(6, sides | 0);
+    const cylinder = (x, z, radius, h, sides, color, baseY = 0) => {
+      const count = Math.max(5, sides | 0);
       for (let i = 0; i < count; i++) {
-        const a0 = (i / count) * TAU;
-        const a1 = ((i + 1) / count) * TAU;
-        const p0 = [x + Math.cos(a0) * radius, baseY, z + Math.sin(a0) * radius];
-        const p1 = [x + Math.cos(a1) * radius, baseY, z + Math.sin(a1) * radius];
-        const p2 = [p1[0], baseY + height3d, p1[2]];
-        const p3 = [p0[0], baseY + height3d, p0[2]];
-        const n = [Math.cos((a0 + a1) / 2), 0, Math.sin((a0 + a1) / 2)];
-        quad(p0, p1, p2, p3, n, shade(color, i % 2 ? 0.86 : 0.98));
-        triangle([x, baseY + height3d, z], p3, p2, [0, 1, 0], tint(color, white, 0.12));
-        triangle([x, baseY, z], p1, p0, [0, -1, 0], shade(color, 0.5));
+        const a0 = (i / count) * TAU,
+          a1 = ((i + 1) / count) * TAU;
+        const p0 = [
+          x + Math.cos(a0) * radius,
+          baseY,
+          z + Math.sin(a0) * radius,
+        ];
+        const p1 = [
+          x + Math.cos(a1) * radius,
+          baseY,
+          z + Math.sin(a1) * radius,
+        ];
+        const p2 = [p1[0], baseY + h, p1[2]],
+          p3 = [p0[0], baseY + h, p0[2]];
+        quad(
+          p0,
+          p1,
+          p2,
+          p3,
+          [Math.cos((a0 + a1) / 2), 0, Math.sin((a0 + a1) / 2)],
+          shade(color, i % 2 ? 0.86 : 1),
+        );
+        triangle(
+          [x, baseY + h, z],
+          p3,
+          p2,
+          [0, 1, 0],
+          tint(color, white, 0.12),
+        );
       }
     };
 
-    const pyramid = (x, z, radius, height3d, color, baseY = 0, sides = 6) => {
-      const count = Math.max(4, sides | 0);
-      const tip = [x + random() * radius * 0.18, baseY + height3d, z + random() * radius * 0.18];
-      const ring = Array.from({ length: count }, (_, i) => {
-        const angle = (i / count) * TAU + random() * 0.08;
-        const stretch = 0.78 + random() * 0.36;
-        return [x + Math.cos(angle) * radius * stretch, baseY, z + Math.sin(angle) * radius * stretch];
-      });
+    const pyramid = (
+      x,
+      z,
+      radius,
+      h,
+      color,
+      rotation = 0,
+      baseY = 0,
+      sides = 5,
+    ) => {
+      const count = Math.max(4, sides | 0),
+        points = [];
       for (let i = 0; i < count; i++) {
-        const p0 = ring[i];
-        const p1 = ring[(i + 1) % count];
-        triangleAutoNormal(p0, p1, tip, tint(color, white, 0.08 + (i % 3) * 0.035));
-        triangle([x, baseY, z], p1, p0, [0, -1, 0], shade(color, 0.48));
+        const a = rotation + (i / count) * TAU,
+          k = 0.82 + random() * 0.22;
+        points.push([
+          x + Math.cos(a) * radius * k,
+          baseY,
+          z + Math.sin(a) * radius * k,
+        ]);
+      }
+      const tip = [
+        x + Math.cos(rotation + 0.6) * radius * 0.12,
+        baseY + h,
+        z + Math.sin(rotation + 0.6) * radius * 0.12,
+      ];
+      for (let i = 0; i < count; i++) {
+        autoTriangle(
+          points[i],
+          points[(i + 1) % count],
+          tip,
+          tint(color, white, 0.07 + (i % 2) * 0.04),
+        );
+        triangle(
+          [x, baseY, z],
+          points[(i + 1) % count],
+          points[i],
+          [0, -1, 0],
+          shade(color, 0.48),
+        );
       }
     };
 
-    const torus = (x, z, major, minor, color, y = 8, segments = 44, tubeSegments = 8) => {
-      for (let i = 0; i < segments; i++) {
-        const a0 = (i / segments) * TAU;
-        const a1 = ((i + 1) / segments) * TAU;
-        for (let j = 0; j < tubeSegments; j++) {
-          const b0 = (j / tubeSegments) * TAU;
-          const b1 = ((j + 1) / tubeSegments) * TAU;
-          const point = (a, b) => [
-            x + (major + minor * Math.cos(b)) * Math.cos(a),
-            y + minor * Math.sin(b),
-            z + (major + minor * Math.cos(b)) * Math.sin(a),
-          ];
-          const normal = (a, b) => [Math.cos(b) * Math.cos(a), Math.sin(b), Math.cos(b) * Math.sin(a)];
-          quad(point(a0, b0), point(a1, b0), point(a1, b1), point(a0, b1), normal((a0 + a1) / 2, (b0 + b1) / 2), color);
+    const drawBuilding = (o, color, ruined = false) => {
+      box(o.x, o.z, o.w, o.h, o.d, color, o.rotation, 0);
+      box(
+        o.x,
+        o.z,
+        o.w * 0.9,
+        Math.max(4, o.h * 0.025),
+        o.d * 0.9,
+        tint(color, white, 0.14),
+        o.rotation,
+        o.h,
+      );
+      const windowColor =
+        id === "mysterio"
+          ? tint(accent, white, 0.28)
+          : tint(accent, floor, 0.08);
+      const rows = Math.min(3, Math.max(1, Math.floor(o.h / 75)));
+      for (let row = 0; row < rows; row++)
+        for (let col = 0; col < 2; col++) {
+          const wx = o.x + (col ? 1 : -1) * o.w * 0.24;
+          const wy = 18 + ((row + 0.5) * (o.h - 28)) / rows;
+          box(
+            wx,
+            o.z + o.d * 0.5 + 0.9,
+            Math.min(14, o.w * 0.11),
+            Math.min(12, o.h * 0.08),
+            1.5,
+            windowColor,
+            o.rotation,
+            wy,
+          );
         }
+      if (ruined) {
+        box(
+          o.x + o.w * 0.12,
+          o.z - o.d * 0.12,
+          o.w * 0.38,
+          Math.max(10, o.h * 0.2),
+          o.d * 0.35,
+          shade(color, 0.76),
+          o.rotation - 0.22,
+          o.h * 0.76,
+        );
+        pyramid(
+          o.x - o.w * 0.32,
+          o.z + o.d * 0.32,
+          16 + random() * 10,
+          20 + random() * 18,
+          shade(color, 0.78),
+          o.rotation,
+          0,
+          4,
+        );
       }
     };
 
-    const verticalTorus = (x, y, z, major, minor, color, segments = 36, tubeSegments = 8) => {
-      for (let i = 0; i < segments; i++) {
-        const a0 = (i / segments) * TAU;
-        const a1 = ((i + 1) / segments) * TAU;
-        for (let j = 0; j < tubeSegments; j++) {
-          const b0 = (j / tubeSegments) * TAU;
-          const b1 = ((j + 1) / tubeSegments) * TAU;
-          const point = (a, b) => [
-            x + (major + minor * Math.cos(b)) * Math.cos(a),
-            y + (major + minor * Math.cos(b)) * Math.sin(a),
-            z + minor * Math.sin(b),
-          ];
-          const normal = (a, b) => [Math.cos(b) * Math.cos(a), Math.cos(b) * Math.sin(a), Math.sin(b)];
-          quad(point(a0, b0), point(a1, b0), point(a1, b1), point(a0, b1), normal((a0 + a1) / 2, (b0 + b1) / 2), color);
-        }
-      }
-    };
+    // 3D asphalt/terrain and raised lane markings; the gameplay layer stays 2D.
+    flat(0, 0, width, height, -16, floor);
+    const road =
+      id === "mysterio"
+        ? tint(floor, [0.035, 0.09, 0.095], 0.36)
+        : tint(floor, [0.035, 0.045, 0.055], 0.42);
+    const lane =
+      id === "thanos" || id === "void"
+        ? tint(floor, accent, 0.24)
+        : [0.68, 0.61, 0.38];
+    const roadXs = [0.113, 0.343, 0.574, 0.804].map((ratio) => width * ratio);
+    const roadZs = [0.157, 0.433, 0.71, 0.987].map((ratio) => height * ratio);
+    const verticalDashStep = Math.max(130, height / 12);
+    const horizontalDashStep = Math.max(135, width / 13);
+    for (const x of roadXs) {
+      box(x, height * 0.5, 112, 1.4, height, road, 0, -13);
+      for (let z = 70; z < height - 45; z += verticalDashStep)
+        box(x, height * 0.5 + (z - height * 0.5), 2.2, 0.7, 54, lane, 0, -11.2);
+      box(x - 65, height * 0.5, 7, 1.8, height, [0.34, 0.34, 0.32], 0, -11.6);
+      box(x + 65, height * 0.5, 7, 1.8, height, [0.34, 0.34, 0.32], 0, -11.6);
+    }
+    for (const z of roadZs) {
+      box(width * 0.5, z, width, 1.4, 102, road, 0, -13);
+      for (let x = 75; x < width - 45; x += horizontalDashStep)
+        box(x, z, 58, 0.7, 2.1, lane, 0, -11.2);
+      box(width * 0.5, z - 59, width, 1.8, 6, [0.34, 0.34, 0.32], 0, -11.6);
+      box(width * 0.5, z + 59, width, 1.8, 6, [0.34, 0.34, 0.32], 0, -11.6);
+    }
+    // Subtle plaza paving rings, kept flat and low-profile for the classic overhead view.
+    const pad = tint(floor, deep, 0.18);
+    flat(
+      layout.centerX - 214,
+      layout.centerZ - 166,
+      layout.centerX + 214,
+      layout.centerZ + 166,
+      -14,
+      pad,
+    );
+    flat(
+      layout.centerX - 208,
+      layout.centerZ - 160,
+      layout.centerX + 208,
+      layout.centerZ + 160,
+      -13.6,
+      tint(pad, accent, 0.04),
+    );
+    for (let i = 0; i < 4; i++) {
+      const x = layout.centerX - 168 + i * 112;
+      box(
+        x,
+        layout.centerZ,
+        1.3,
+        0.35,
+        292,
+        tint(floor, accent, 0.12),
+        0,
+        -13.1,
+      );
+    }
 
-    const building = (x, z, w, d, h, color, broken = false, seed = 0) => {
-      const rotation = (random() - 0.5) * 0.08;
-      box(x, z, w, h, d, color, rotation);
-      const roofColor = tint(color, white, 0.12);
-      box(x, z, w * 0.9, Math.max(5, h * 0.025), d * 0.9, roofColor, rotation, h);
-      if (broken) {
-        box(x + w * 0.16, z - d * 0.12, w * 0.43, Math.max(12, h * 0.22), d * 0.44, shade(color, 0.78), rotation - 0.22, h * 0.82);
-        pyramid(x - w * 0.34, z + d * 0.34, 28 + random() * 24, 34 + random() * 36, shade(color, 0.78), 0, 5);
+    for (const o of layout.objects) {
+      const variation = (o.variant % 3) * 0.06;
+      const baseColor = shade(
+        tint(deep, secondary, variation),
+        0.88 + variation,
+      );
+      if (o.type === "tower")
+        drawBuilding(o, tint(baseColor, accent, 0.11), false);
+      else if (o.type === "ruin") drawBuilding(o, baseColor, true);
+      else if (o.type === "rubble") {
+        box(o.x, o.z, o.w, o.h * 0.34, o.d, baseColor, o.rotation, 0);
+        pyramid(
+          o.x - o.w * 0.18,
+          o.z + o.d * 0.12,
+          o.w * 0.23,
+          o.h * 0.7,
+          tint(baseColor, white, 0.07),
+          o.rotation,
+          0,
+          4,
+        );
+        box(
+          o.x + o.w * 0.25,
+          o.z - o.d * 0.15,
+          o.w * 0.34,
+          o.h * 0.26,
+          o.d * 0.3,
+          shade(baseColor, 0.68),
+          o.rotation + 0.4,
+          0,
+        );
+      } else if (o.type === "barricade") {
+        box(o.x, o.z, o.w, o.h, o.d, baseColor, o.rotation, 0);
+        box(
+          o.x,
+          o.z,
+          o.w * 0.76,
+          6,
+          o.d * 1.12,
+          tint(baseColor, accent, 0.2),
+          o.rotation,
+          o.h,
+        );
+      } else if (o.type === "droneTower") {
+        box(o.x, o.z, o.w * 0.64, o.h, o.d * 0.64, baseColor, o.rotation, 0);
+        box(
+          o.x,
+          o.z,
+          o.w,
+          o.h * 0.12,
+          o.d,
+          tint(baseColor, accent, 0.2),
+          o.rotation,
+          o.h * 0.58,
+        );
+        cylinder(
+          o.x,
+          o.z,
+          Math.min(o.w, o.d) * 0.34,
+          8,
+          6,
+          tint(baseColor, accent, 0.54),
+          o.h * 0.8,
+        );
+      } else if (o.type === "island" || o.type === "mesa") {
+        cylinder(
+          o.x,
+          o.z,
+          Math.max(o.w, o.d) * 0.44,
+          Math.max(10, o.h * 0.22),
+          7,
+          baseColor,
+          o.float,
+        );
+        pyramid(
+          o.x,
+          o.z,
+          Math.max(o.w, o.d) * 0.42,
+          o.h * 0.76,
+          tint(baseColor, white, 0.09),
+          o.rotation,
+          o.float + o.h * 0.18,
+          5,
+        );
+      } else if (o.type === "obelisk" || o.type === "shard") {
+        const h = o.h,
+          base = o.float;
+        pyramid(
+          o.x,
+          o.z,
+          Math.max(o.w, o.d) * 0.34,
+          h,
+          baseColor,
+          o.rotation,
+          base,
+          4,
+        );
+        box(
+          o.x,
+          o.z,
+          Math.max(12, o.w * 0.16),
+          h * 0.56,
+          Math.max(12, o.d * 0.16),
+          tint(baseColor, accent, id === "void" ? 0.25 : 0.1),
+          o.rotation,
+          base + h * 0.08,
+        );
+      } else if (o.type === "pillar") {
+        cylinder(
+          o.x,
+          o.z,
+          Math.max(o.w, o.d) * 0.31,
+          o.h,
+          7,
+          baseColor,
+          o.float,
+        );
+        cylinder(
+          o.x,
+          o.z,
+          Math.max(o.w, o.d) * 0.42,
+          7,
+          7,
+          tint(baseColor, accent, 0.2),
+          o.float + o.h,
+        );
       }
-      const rows = Math.max(1, Math.min(5, Math.floor(h / 54)));
-      const columns = Math.max(2, Math.min(5, Math.floor(w / 42)));
-      const windowColor = tint(accent, [0.77, 0.9, 1], 0.28);
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < columns; col++) {
-          if (random() < 0.21) continue;
-          const wx = x - w * 0.38 + (w * 0.76 * (col + 0.5)) / columns;
-          const wy = 20 + (h - 32) * (row + 0.5) / rows;
-          const wz = z + d / 2 + 0.8;
-          box(wx, wz, Math.min(12, w / (columns * 2.5)), 7 + (seed % 3), 1.6, windowColor, rotation, wy);
-        }
-      }
-      for (let row = 0; row < Math.max(1, rows - 1); row++) {
-        const wx = x + w / 2 + 0.8;
-        const wz = z - d * 0.34 + (d * 0.68 * (row + 0.5)) / Math.max(1, rows - 1);
-        box(wx, wz, 1.6, 8, 12, shade(windowColor, 0.86), rotation, 24 + row * 50);
-      }
-    };
+    }
 
-    const rubble = (x, z, scale = 1, color = deep) => {
-      box(x, z, 46 * scale, 18 * scale, 32 * scale, shade(color, 0.82), random() * 0.8);
-      pyramid(x - 12 * scale, z + 5 * scale, 18 * scale, 28 * scale, tint(color, white, 0.05), 8 * scale, 5);
-      box(x + 25 * scale, z - 15 * scale, 28 * scale, 12 * scale, 23 * scale, shade(color, 0.65), random() * 1.2, 4 * scale);
-    };
-
-    const addUrbanRing = (ruined = false) => {
-      const marginX = 110;
-      const marginZ = 105;
-      const columns = 6;
-      for (let i = 0; i < columns; i++) {
-        const x = marginX + ((width - marginX * 2) * i) / (columns - 1);
-        if (Math.abs(x - centerX) > 330) {
-          const w = 115 + random() * 90;
-          const d = 90 + random() * 70;
-          const h = 125 + random() * (ruined ? 100 : 245);
-          building(x, marginZ + random() * 30, w, d, h, i % 2 ? deep : secondary, ruined, i);
-          building(x, height - marginZ - random() * 30, w * 0.88, d, h * (0.72 + random() * 0.5), i % 2 ? secondary : deep, ruined, i + 2);
-        }
-      }
-      const sideRows = [0.2, 0.5, 0.8];
-      for (const ratio of sideRows) {
-        const z = height * ratio;
-        if (Math.abs(z - centerZ) < 265) continue;
-        building(marginX, z, 100 + random() * 55, 85 + random() * 55, 110 + random() * 200, deep, ruined, 3);
-        building(width - marginX, z, 100 + random() * 55, 85 + random() * 55, 125 + random() * 210, secondary, ruined, 4);
-      }
-    };
-
-    // The continuous ground slab is real 3D geometry; sprites and every combat
-    // object remain on the separate Canvas2D layer above it.
-    groundQuad(-40, -40, width + 40, height + 40, -12, floor);
-    const grid = tint(floor, accent, 0.09);
-    for (let x = 120; x < width; x += 180) box(x, worldCenterZ, 1.3, 0.7, height - 80, grid, 0, -10);
-    for (let z = 120; z < height; z += 180) box(worldCenterX, z, width - 80, 0.7, 1.3, grid, 0, -10);
-
-    // Shared raised combat dais under the player spawn, plus world-scale 3D borders.
-    cylinder(centerX, centerZ, 330, 7, 48, tint(floor, deep, 0.46), -2);
-    cylinder(centerX, centerZ, 275, 4, 48, tint(floor, accent, 0.08), 5);
-    torus(centerX, centerZ, 258, 4.5, accent, 10, 52, 8);
-    torus(centerX, centerZ, 292, 2.4, tint(accent, white, 0.42), 8, 52, 7);
-    const perimeter = tint(deep, accent, 0.13);
-    box(worldCenterX, 24, width - 70, 34, 12, perimeter, 0, -5);
-    box(worldCenterX, height - 24, width - 70, 34, 12, perimeter, 0, -5);
-    box(24, worldCenterZ, 12, 34, height - 70, perimeter, 0, -5);
-    box(width - 24, worldCenterZ, 12, 34, height - 70, perimeter, 0, -5);
-
-    if (id === "redskull") {
-      addUrbanRing(true);
-      cylinder(centerX, centerZ, 152, 5, 12, tint(deep, [0.02, 0.02, 0.03], 0.38), 10);
-      torus(centerX, centerZ, 164, 4, accent, 17, 40, 7);
+    // Landmark chevrons add chapter identity without filling the play space.
+    if (id === "redskull" || id === "ultron") {
       for (let i = 0; i < 4; i++) {
-        const x = 260 + i * ((width - 520) / 3);
-        box(x, 122, 22, 205 + random() * 45, 18, shade(accent, 0.66), 0, 0);
-        box(x, 111, 46, 14, 28, accent, 0, 207);
-        box(x, height - 122, 22, 168 + random() * 55, 18, shade(accent, 0.6), 0, 0);
-      }
-      for (let i = 0; i < 10; i++) {
-        const angle = (i / 10) * TAU + 0.18;
-        const x = centerX + Math.cos(angle) * (390 + (i % 2) * 38);
-        const z = centerZ + Math.sin(angle) * (300 + (i % 3) * 22);
-        rubble(x, z, 0.82 + random() * 0.58, i % 2 ? deep : secondary);
-        if (i % 2 === 0)
-          box(x + 38, z - 14, 22, 72 + random() * 34, 18, shade(deep, 0.8), angle, 0);
-      }
-      for (let i = 0; i < 15; i++) {
-        const side = i % 4;
-        const x = side < 2 ? 180 + random() * (width - 360) : side === 2 ? 170 : width - 170;
-        const z = side < 2 ? (side === 0 ? 240 : height - 240) : 180 + random() * (height - 360);
-        rubble(x, z, 0.8 + random() * 1.4, i % 2 ? deep : secondary);
-      }
-    } else if (id === "mysterio") {
-      addUrbanRing(false);
-      // Emerald-lit street canyons and glassy projection pylons.
-      box(centerX, centerZ, 120, 1.2, height - 100, tint(floor, accent, 0.13), 0, -8);
-      box(centerX, centerZ, width - 100, 1.2, 90, tint(floor, accent, 0.12), 0, -7);
-      for (let i = 0; i < 7; i++) {
-        const angle = (i / 7) * TAU;
-        const x = centerX + Math.cos(angle) * (480 + (i % 2) * 90);
-        const z = centerZ + Math.sin(angle) * (360 + (i % 3) * 42);
-        cylinder(x, z, 24, 155 + (i % 3) * 26, 8, darkMetal, 0);
-        torus(x, z, 37, 3.5, accent, 88 + (i % 3) * 18, 28, 6);
-        verticalTorus(x, 112, z, 46, 3.4, tint(accent, white, 0.22), 32, 6);
-        box(x, z, 72, 8, 72, tint(deep, accent, 0.26), 0, -4);
-      }
-      for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * TAU + Math.PI / 8;
-        const x = centerX + Math.cos(angle) * 412;
-        const z = centerZ + Math.sin(angle) * 286;
-        building(x, z, 76 + random() * 24, 66 + random() * 24, 128 + random() * 62, i % 2 ? deep : secondary, false, i + 5);
+        const x = layout.centerX - 130 + i * 86;
+        box(x, layout.centerZ - 186, 40, 1.2, 4, accent, 0, -12.7);
       }
     } else if (id === "magneto") {
-      const islands = 12;
-      for (let i = 0; i < islands; i++) {
-        const angle = (i / islands) * TAU + 0.14;
-        const rx = 390 + (i % 3) * 110;
-        const rz = 315 + (i % 4) * 66;
-        const x = centerX + Math.cos(angle) * rx;
-        const z = centerZ + Math.sin(angle) * rz;
-        const size = 58 + random() * 50;
-        cylinder(x, z, size * 0.82, 18 + random() * 38, 9, i % 2 ? deep : secondary, 0);
-        pyramid(x, z, size, 90 + random() * 105, tint(deep, white, 0.13), 12, 7);
-        if (i % 2 === 0) {
-          const ringX = centerX + Math.cos(angle) * (rx + 75);
-          const ringZ = centerZ + Math.sin(angle) * (rz + 40);
-          verticalTorus(ringX, 125 + random() * 25, ringZ, 78, 5, accent, 38, 7);
-          box(ringX, ringZ, 120, 7, 42, darkMetal, angle, -5);
-        }
-      }
-      for (let i = 0; i < 18; i++) {
-        const angle = random() * TAU;
-        const radius = 330 + random() * 470;
-        box(centerX + Math.cos(angle) * radius, centerZ + Math.sin(angle) * radius, 42 + random() * 38, 20 + random() * 34, 32 + random() * 30, i % 2 ? deep : secondary, angle, 55 + random() * 90);
-      }
-      torus(centerX, centerZ, 210, 3, tint(accent, white, 0.12), 12, 48, 7);
-    } else if (id === "ultron") {
-      addUrbanRing(true);
-      for (let i = 0; i < 7; i++) {
-        const angle = (i / 7) * TAU;
-        const x = centerX + Math.cos(angle) * 470;
-        const z = centerZ + Math.sin(angle) * 380;
-        box(x, z, 38, 175 + random() * 80, 38, darkMetal, angle, 0);
-        box(x, z, 46, 12, 46, accent, angle, 168 + random() * 42);
-        cylinder(x, z, 58, 8, 8, tint(deep, accent, 0.42), 0);
-      }
-      // Raised red grid bars make Sokovia's attack lanes part of the 3D floor.
-      for (let i = -2; i <= 2; i++) {
-        box(centerX + i * 118, centerZ, 2.2, 2, height - 160, tint(floor, accent, 0.4), 0, -5);
-        box(centerX, centerZ + i * 104, width - 160, 2, 2.2, tint(floor, accent, 0.37), 0, -4);
-      }
-      for (let i = 0; i < 12; i++) {
-        const x = 160 + random() * (width - 320);
-        const z = 140 + random() * (height - 280);
-        if (Math.hypot(x - centerX, z - centerZ) < 430) continue;
-        rubble(x, z, 0.65 + random() * 1.05, secondary);
-      }
-    } else if (id === "thanos") {
-      for (let i = 0; i < 16; i++) {
-        const angle = (i / 16) * TAU;
-        const rx = 450 + (i % 4) * 82;
-        const rz = 345 + (i % 3) * 74;
-        const x = centerX + Math.cos(angle) * rx;
-        const z = centerZ + Math.sin(angle) * rz;
-        const size = 80 + random() * 48;
-        pyramid(x, z, size, 68 + random() * 90, i % 2 ? deep : secondary, 0, 5 + (i % 3));
-        box(x, z, size * 1.6, 12, size * 1.25, tint(floor, deep, 0.35), angle * 0.18, -5);
-      }
       for (let i = 0; i < 6; i++) {
-        const angle = (i / 6) * TAU;
-        const x = centerX + Math.cos(angle) * 370;
-        const z = centerZ + Math.sin(angle) * 285;
-        cylinder(x, z, 25, 135, 8, darkMetal, 0);
-        cylinder(x, z, 38, 8, 8, accent, 135);
-        verticalTorus(x, 100, z, 48, 3.2, tint(accent, white, 0.2), 28, 6);
+        const x = layout.centerX - 150 + i * 60;
+        box(x, layout.centerZ + 176, 3, 0.8, 18, accent, 0, -12.6);
       }
-      for (let i = 0; i < 9; i++) {
-        const angle = random() * TAU;
-        const radius = 345 + random() * 390;
-        pyramid(centerX + Math.cos(angle) * radius, centerZ + Math.sin(angle) * radius, 28 + random() * 30, 34 + random() * 44, tint(deep, white, 0.08), 48 + random() * 66, 5);
-      }
-      torus(centerX, centerZ, 190, 3.3, accent, 13, 44, 7);
     } else if (id === "void") {
-      cylinder(centerX, centerZ, 190, 18, 12, tint(deep, [0.015, 0.01, 0.03], 0.4), 0);
-      torus(centerX, centerZ, 205, 6, accent, 20, 56, 9);
-      torus(centerX, centerZ, 245, 2.5, tint(accent, white, 0.3), 33, 56, 8);
-      for (let i = 0; i < 12; i++) {
-        const angle = (i / 12) * TAU;
-        const radius = 390 + (i % 3) * 100;
-        const x = centerX + Math.cos(angle) * radius;
-        const z = centerZ + Math.sin(angle) * (300 + (i % 4) * 70);
-        const height3d = 135 + random() * 170;
-        const shard = 55 + random() * 38;
-        pyramid(x, z, shard, height3d, i % 2 ? deep : secondary, 0, 5 + (i % 3));
-        box(x, z, shard * 0.36, height3d * 0.74, shard * 0.34, tint(accent, white, 0.2), angle, height3d * 0.1);
-        verticalTorus(x, 118, z, 50 + (i % 2) * 14, 3.8, tint(accent, white, 0.12), 28, 6);
-      }
-      // Floating broken slabs and crystal shards rise above the fractured arena.
-      for (let i = 0; i < 15; i++) {
-        const angle = random() * TAU;
-        const radius = 300 + random() * 600;
-        const x = centerX + Math.cos(angle) * radius;
-        const z = centerZ + Math.sin(angle) * radius * 0.72;
-        box(x, z, 55 + random() * 72, 14 + random() * 20, 42 + random() * 60, i % 2 ? deep : secondary, angle, 55 + random() * 115);
-      }
-      for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * TAU;
-        verticalTorus(centerX + Math.cos(angle) * 570, 180, centerZ + Math.sin(angle) * 430, 76, 4.5, accent, 32, 7);
+      for (let i = 0; i < 4; i++) {
+        const x = layout.centerX - 120 + i * 80;
+        box(x, layout.centerZ - 178, 24, 1.1, 4, accent, 0, -12.6);
       }
     }
 
-    // Continue the chosen architecture across the full traversable map so the
-    // scene remains a 3D place as the 2D camera follows the hero away from spawn.
-    for (let i = 0; i < 42; i++) {
-      const x = 90 + random() * (width - 180);
-      const z = 90 + random() * (height - 180);
-      if (Math.hypot(x - centerX, z - centerZ) < 380) continue;
-      const scale = 0.62 + random() * 0.72;
-      if (id === "redskull" || id === "ultron") {
-        rubble(x, z, scale, i % 2 ? deep : secondary);
-        if (i % 5 === 0) box(x + 26, z - 14, 18, 54 + random() * 55, 17, shade(deep, 0.82), random() * 0.8);
-      } else if (id === "mysterio") {
-        building(x, z, 58 + random() * 34, 55 + random() * 35, 75 + random() * 115, i % 2 ? deep : secondary, false, i);
-      } else if (id === "magneto") {
-        cylinder(x, z, 24 + random() * 28, 14 + random() * 18, 7, i % 2 ? deep : secondary, 0);
-        pyramid(x, z, 28 + random() * 34, 45 + random() * 76, tint(deep, white, 0.08), 9, 6);
-      } else if (id === "thanos") {
-        pyramid(x, z, 28 + random() * 45, 38 + random() * 72, i % 2 ? deep : secondary, 0, 5 + (i % 3));
-        box(x + 18, z - 14, 44, 10, 36, tint(floor, deep, 0.38), random() * 0.8, -3);
-      } else {
-        pyramid(x, z, 28 + random() * 40, 52 + random() * 112, i % 2 ? deep : secondary, 0, 5 + (i % 3));
-        if (i % 3 === 0) verticalTorus(x, 74 + random() * 45, z, 30 + random() * 20, 2.8, accent, 20, 5);
-      }
-    }
+    return {
+      vertices: new Float32Array(vertices),
+      colliders: collidersFromLayout(layout),
+      layout,
+    };
+  }
 
-    return new Float32Array(vertices);
+  function makeStageGeometry(...args) {
+    return makeStageData(...args).vertices;
+  }
+
+  function createGeometryWorker() {
+    if (
+      typeof Worker === "undefined" ||
+      typeof Blob === "undefined" ||
+      !root.URL?.createObjectURL
+    )
+      return null;
+    const source = `(${registerStage3DGeometry.toString()})(self);self.onmessage=function(e){try{var d=self.__kuroStage3DGeometry.makeStageData(e.data.stageIndex,e.data.width,e.data.height,e.data.stage,e.data.viewportWidth,e.data.viewportHeight);self.postMessage({key:e.data.key,vertices:d.vertices.buffer},[d.vertices.buffer])}catch(error){self.postMessage({key:e.data.key,error:String(error&&error.message||error)})}};`;
+    const url = root.URL.createObjectURL(
+      new Blob([source], { type: "text/javascript" }),
+    );
+    try {
+      const worker = new Worker(url);
+      root.URL.revokeObjectURL(url);
+      return worker;
+    } catch {
+      root.URL.revokeObjectURL(url);
+      return null;
+    }
   }
 
   function multiply4(a, b) {
     const out = new Float32Array(16);
-    for (let column = 0; column < 4; column++) {
+    for (let column = 0; column < 4; column++)
       for (let row = 0; row < 4; row++) {
         let value = 0;
         for (let k = 0; k < 4; k++) value += a[k * 4 + row] * b[column * 4 + k];
         out[column * 4 + row] = value;
       }
-    }
     return out;
   }
-
   function lookAt4(eye, center, up) {
-    const normalize = (v) => {
-      const n = Math.hypot(v[0], v[1], v[2]) || 1;
+    const norm = (v) => {
+      const n = Math.hypot(...v) || 1;
       return v.map((x) => x / n);
     };
-    const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    const cross = (a, b) => [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
     const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const z = normalize([eye[0] - center[0], eye[1] - center[1], eye[2] - center[2]]);
-    const x = normalize(cross(up, z));
+    const z = norm([
+      eye[0] - center[0],
+      eye[1] - center[1],
+      eye[2] - center[2],
+    ]);
+    const x = norm(cross(up, z));
     const y = cross(z, x);
     return new Float32Array([
-      x[0], y[0], z[0], 0,
-      x[1], y[1], z[1], 0,
-      x[2], y[2], z[2], 0,
-      -dot(x, eye), -dot(y, eye), -dot(z, eye), 1,
+      x[0],
+      y[0],
+      z[0],
+      0,
+      x[1],
+      y[1],
+      z[1],
+      0,
+      x[2],
+      y[2],
+      z[2],
+      0,
+      -dot(x, eye),
+      -dot(y, eye),
+      -dot(z, eye),
+      1,
     ]);
   }
-
   function ortho4(left, right, bottom, top, near, far) {
-    const lr = 1 / (right - left);
-    const bt = 1 / (top - bottom);
-    const nf = 1 / (far - near);
+    const lr = 1 / (right - left),
+      bt = 1 / (top - bottom),
+      nf = 1 / (far - near);
     return new Float32Array([
-      2 * lr, 0, 0, 0,
-      0, 2 * bt, 0, 0,
-      0, 0, -2 * nf, 0,
-      -(right + left) * lr, -(top + bottom) * bt, -(far + near) * nf, 1,
+      2 * lr,
+      0,
+      0,
+      0,
+      0,
+      2 * bt,
+      0,
+      0,
+      0,
+      0,
+      -2 * nf,
+      0,
+      -(right + left) * lr,
+      -(top + bottom) * bt,
+      -(far + near) * nf,
+      1,
     ]);
   }
 
-  const api = { makeStageGeometry, hexColor, tint, shade, multiply4, lookAt4, ortho4 };
+  const api = {
+    makeStageData,
+    makeStageGeometry,
+    makeStageLayout,
+    makeStageColliders,
+    collidersFromLayout,
+    createGeometryWorker,
+    hexColor,
+    tint,
+    shade,
+    multiply4,
+    lookAt4,
+    ortho4,
+  };
   root.__kuroStage3DGeometry = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(globalThis);
@@ -6400,7 +6729,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
 /* Edge-triggered hosted laser SFX: one clip per press, never one per rendered beam frame. */
 (function registerLaserController(root) {
   function installLaserController(proto, sfxBank, soundEngine) {
-    if (!proto || !sfxBank || proto.__kuroLaserControllerInstalled) return false;
+    if (!proto || !sfxBank || proto.__kuroLaserControllerInstalled)
+      return false;
     proto.__kuroLaserControllerInstalled = true;
 
     const baseShot = soundEngine?.shot?.bind(soundEngine) || (() => {});
@@ -6420,7 +6750,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     const baseQShot = soundEngine?.shot;
     if (soundEngine && typeof baseQShot === "function") {
       soundEngine.shot = function (kind, ...args) {
-        if (root.__nexusLaserSuppressHosted && ["rail", "tesla"].includes(kind)) return;
+        if (root.__nexusLaserSuppressHosted && ["rail", "tesla"].includes(kind))
+          return;
         return baseQShot.call(this, kind, ...args);
       };
     }
@@ -6471,7 +6802,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           ? !!(
               this.autoFire ||
               (this.stickAim?.active &&
-                (Math.abs(this.stickAim.dx || 0) > 0.2 || Math.abs(this.stickAim.dy || 0) > 0.2)) ||
+                (Math.abs(this.stickAim.dx || 0) > 0.2 ||
+                  Math.abs(this.stickAim.dy || 0) > 0.2)) ||
               (!this.stickAim?.active && this.cls?.id !== "robo")
             )
           : !!(this.mouse?.down || this.keys?.KeyJ);
@@ -6493,7 +6825,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       proto.castSpecial = function (index, ...args) {
         const special = this.cls?.specials?.[index];
         const isUnibeam =
-          this.cls?.id === "robo" && special?.params?.move === "ironman-unifeixe";
+          this.cls?.id === "robo" &&
+          special?.params?.move === "ironman-unifeixe";
         if (!isUnibeam) return previousSpecial.call(this, index, ...args);
         const wasReady = !!this.specT && this.specT[index] <= 0;
         const wasSuppressed = !!root.__nexusLaserSuppressHosted;
@@ -6512,7 +6845,13 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       };
     }
 
-    const stopMethods = ["startRun", "startTraining", "pause", "endRun", "toMenu"];
+    const stopMethods = [
+      "startRun",
+      "startTraining",
+      "pause",
+      "endRun",
+      "toMenu",
+    ];
     for (const name of stopMethods) {
       const previous = proto[name];
       if (typeof previous !== "function") continue;
@@ -6526,7 +6865,10 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     if (typeof previousBindInput === "function") {
       proto.bindInput = function (...args) {
         const result = previousBindInput.apply(this, args);
-        if (!this._nexusLaserReleaseHandler && typeof root.addEventListener === "function") {
+        if (
+          !this._nexusLaserReleaseHandler &&
+          typeof root.addEventListener === "function"
+        ) {
           const game = this;
           const release = () => {
             if (!game.mouse?.down) stopLaser(game);
@@ -6546,9 +6888,15 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     if (typeof previousDestroy === "function") {
       proto.destroy = function (...args) {
         stopLaser(this);
-        if (this._nexusLaserReleaseHandler && typeof root.removeEventListener === "function") {
+        if (
+          this._nexusLaserReleaseHandler &&
+          typeof root.removeEventListener === "function"
+        ) {
           root.removeEventListener("pointerup", this._nexusLaserReleaseHandler);
-          root.removeEventListener("pointercancel", this._nexusLaserReleaseHandler);
+          root.removeEventListener(
+            "pointercancel",
+            this._nexusLaserReleaseHandler,
+          );
           root.removeEventListener("blur", this._nexusLaserBlurHandler);
         }
         return previousDestroy.apply(this, args);
@@ -6569,6 +6917,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   const stages = window.__nexusCampaignStages || [];
   const missions = window.__nexusStoryMissions || [];
   const planBuilder = window.__kuroCampaignPlan;
+  const geometryApi = window.__kuroStage3DGeometry;
   if (!stages.length || !planBuilder || !Array.isArray(missions)) return;
 
   const campaignMissions = planBuilder.buildMissions(stages);
@@ -6577,38 +6926,267 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   window.__nexusStoryMissionPlan = campaignMissions;
 
   const difficultyTuning = {
-    facil: { enemyHp: 0.76, enemyDamage: 0.72, enemySpeed: 0.92, enemyCount: 0.76 },
+    facil: {
+      enemyHp: 0.76,
+      enemyDamage: 0.72,
+      enemySpeed: 0.92,
+      enemyCount: 0.76,
+    },
     medio: { enemyHp: 1, enemyDamage: 1, enemySpeed: 1, enemyCount: 1 },
-    dificil: { enemyHp: 1.3, enemyDamage: 1.25, enemySpeed: 1.12, enemyCount: 1.12 },
-    ultra: { enemyHp: 1.65, enemyDamage: 1.55, enemySpeed: 1.24, enemyCount: 1.26 },
+    dificil: {
+      enemyHp: 1.3,
+      enemyDamage: 1.25,
+      enemySpeed: 1.12,
+      enemyCount: 1.12,
+    },
+    ultra: {
+      enemyHp: 1.65,
+      enemyDamage: 1.55,
+      enemySpeed: 1.24,
+      enemyCount: 1.26,
+    },
   };
-  const byId = Object.fromEntries(missions.map((mission) => [mission.index, mission]));
-  const getMission = (index) => byId[Math.max(0, Math.min(missions.length - 1, Number(index) || 0))];
+  const byId = Object.fromEntries(
+    missions.map((mission) => [mission.index, mission]),
+  );
+  const getMission = (index) =>
+    byId[Math.max(0, Math.min(missions.length - 1, Number(index) || 0))];
   const getStage = (mission) => stages[mission?.stageIndex] || stages[0];
   const difficultyFor = (game) => {
     const difficulty = game.storyDifficulty || { id: "medio", label: "Médio" };
-    Object.assign(difficulty, difficultyTuning[difficulty.id] || difficultyTuning.medio);
+    Object.assign(
+      difficulty,
+      difficultyTuning[difficulty.id] || difficultyTuning.medio,
+    );
     return difficulty;
   };
   const storyProgressKey = "kuroverse-story-progress-v3";
+  const heroSigils = {
+    mago: "✦",
+    atirador: "X",
+    velocista: "ϟ",
+    bruto: "H",
+    robo: "A",
+    samurai: "✕",
+    engenheira: "⚙",
+    oraculo: "◉",
+    necromante: "P",
+    telepata: "Ψ",
+    criomante: "❄",
+    sentinela: "S",
+  };
+  const bossSigils = {
+    redskull: "H",
+    mysterio: "◉",
+    magneto: "M",
+    ultron: "U",
+    thanos: "T",
+    void: "V",
+  };
+  let cutsceneSequence = 0;
+
+  function stampCutscene(scene, duration) {
+    if (!scene) return scene;
+    scene.__kuroCineId = ++cutsceneSequence;
+    scene.__kuroCineDuration = duration;
+    scene.duration = duration;
+    scene.timer = duration;
+    return scene;
+  }
+
+  function applyStageColliders(game, mission = game.storyMission) {
+    if (!mission || !geometryApi?.makeStageColliders) {
+      game.__kuroMapColliders = [];
+      game.__kuroMapColliderKey = "";
+      return [];
+    }
+    const key = `${mission.stageIndex}:${game.worldW}x${game.worldH}:${game.W}x${game.H}`;
+    if (game.__kuroMapColliderKey === key) return game.__kuroMapColliders || [];
+    const stage = getStage(mission);
+    game.__kuroMapColliders = geometryApi.makeStageColliders(
+      mission.stageIndex,
+      game.worldW,
+      game.worldH,
+      stage,
+      game.W,
+      game.H,
+    );
+    game.__kuroMapColliderKey = key;
+    return game.__kuroMapColliders;
+  }
+
+  function resolveMapCollision(entity, game, passes = 2) {
+    const colliders = game.__kuroMapColliders;
+    if (!entity || !Array.isArray(colliders) || !colliders.length) return false;
+    const radius = Math.max(5, Number(entity.r) || 14);
+    let collided = false;
+    for (let pass = 0; pass < passes; pass++) {
+      let changed = false;
+      for (const obstacle of colliders) {
+        const dx = entity.x - obstacle.x;
+        const dy = entity.y - obstacle.y;
+        let nx = 0,
+          ny = 0,
+          push = 0;
+        if (obstacle.type === "circle") {
+          const required = radius + obstacle.radius;
+          const distance = Math.hypot(dx, dy);
+          if (distance >= required) continue;
+          const angle = distance > 0.001 ? 0 : ((entity.id || 1) % 17) * 0.37;
+          nx = distance > 0.001 ? dx / distance : Math.cos(angle);
+          ny = distance > 0.001 ? dy / distance : Math.sin(angle);
+          push = required - distance + 0.2;
+        } else {
+          const angle = obstacle.rotation || 0;
+          const cos = Math.cos(angle),
+            sin = Math.sin(angle);
+          let lx = dx * cos - dy * sin;
+          let ly = dx * sin + dy * cos;
+          const insideX = Math.abs(lx) <= obstacle.halfW;
+          const insideY = Math.abs(ly) <= obstacle.halfH;
+          let localNX, localNY;
+          if (insideX && insideY) {
+            const penX = obstacle.halfW - Math.abs(lx);
+            const penY = obstacle.halfH - Math.abs(ly);
+            if (penX < penY) {
+              localNX = Math.sign(lx || 1);
+              localNY = 0;
+              push = penX + radius + 0.2;
+            } else {
+              localNX = 0;
+              localNY = Math.sign(ly || 1);
+              push = penY + radius + 0.2;
+            }
+          } else {
+            const nearX = Math.max(
+              -obstacle.halfW,
+              Math.min(obstacle.halfW, lx),
+            );
+            const nearY = Math.max(
+              -obstacle.halfH,
+              Math.min(obstacle.halfH, ly),
+            );
+            const ox = lx - nearX,
+              oy = ly - nearY;
+            const distance = Math.hypot(ox, oy);
+            if (distance >= radius) continue;
+            localNX = distance > 0.001 ? ox / distance : 1;
+            localNY = distance > 0.001 ? oy / distance : 0;
+            push = radius - distance + 0.2;
+          }
+          nx = localNX * cos + localNY * sin;
+          ny = -localNX * sin + localNY * cos;
+        }
+        entity.x += nx * push;
+        entity.y += ny * push;
+        const into = (entity.vx || 0) * nx + (entity.vy || 0) * ny;
+        if (into < 0) {
+          entity.vx = (entity.vx || 0) - into * nx;
+          entity.vy = (entity.vy || 0) - into * ny;
+        }
+        collided = changed = true;
+      }
+      if (!changed) break;
+    }
+    return collided;
+  }
+
+  function firstMapHit(x, y, dx, dy, radius, colliders) {
+    let first = Infinity;
+    for (const obstacle of colliders || []) {
+      const angle = obstacle.rotation || 0,
+        cos = Math.cos(angle),
+        sin = Math.sin(angle);
+      const sx = x - obstacle.x,
+        sy = y - obstacle.y;
+      const lx = sx * cos - sy * sin,
+        ly = sx * sin + sy * cos;
+      const ldx = dx * cos - dy * sin,
+        ldy = dx * sin + dy * cos;
+      if (obstacle.type === "circle") {
+        const rr = obstacle.radius + radius;
+        const aa = ldx * ldx + ldy * ldy;
+        if (aa < 1e-6) continue;
+        const bb = 2 * (lx * ldx + ly * ldy);
+        const cc = lx * lx + ly * ly - rr * rr;
+        if (cc <= 0) {
+          first = 0;
+          continue;
+        }
+        const disc = bb * bb - 4 * aa * cc;
+        if (disc < 0) continue;
+        const t = (-bb - Math.sqrt(disc)) / (2 * aa);
+        if (t >= 0 && t <= 1) first = Math.min(first, t);
+      } else {
+        let t0 = 0,
+          t1 = 1;
+        const minX = -obstacle.halfW - radius,
+          maxX = obstacle.halfW + radius;
+        const minY = -obstacle.halfH - radius,
+          maxY = obstacle.halfH + radius;
+        for (const [origin, direction, min, max] of [
+          [lx, ldx, minX, maxX],
+          [ly, ldy, minY, maxY],
+        ]) {
+          if (Math.abs(direction) < 1e-6) {
+            if (origin < min || origin > max) {
+              t0 = 2;
+              break;
+            }
+          } else {
+            let a = (min - origin) / direction,
+              b = (max - origin) / direction;
+            if (a > b) [a, b] = [b, a];
+            t0 = Math.max(t0, a);
+            t1 = Math.min(t1, b);
+            if (t0 > t1) break;
+          }
+        }
+        if (t0 >= 0 && t0 <= t1 && t0 <= 1) first = Math.min(first, t0);
+      }
+    }
+    return Number.isFinite(first) ? first : -1;
+  }
 
   function completeEncounter(game) {
     const mission = game.storyMission;
-    if (!game.storyMode || !mission || mission.kind !== "encounter" || game.storyMissionComplete)
+    if (
+      !game.storyMode ||
+      !mission ||
+      mission.kind !== "encounter" ||
+      game.storyMissionComplete
+    )
       return false;
 
     let progress = { unlockedMission: 0, completed: [] };
     try {
-      const saved = JSON.parse(localStorage.getItem(storyProgressKey) || "null");
+      const saved = JSON.parse(
+        localStorage.getItem(storyProgressKey) || "null",
+      );
       if (saved && typeof saved === "object") {
-        progress.unlockedMission = Math.max(0, Number(saved.unlockedMission) || 0);
+        progress.unlockedMission = Math.max(
+          0,
+          Number(saved.unlockedMission) || 0,
+        );
         progress.completed = Array.isArray(saved.completed)
-          ? [...new Set(saved.completed.map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n < missions.length))]
+          ? [
+              ...new Set(
+                saved.completed
+                  .map(Number)
+                  .filter(
+                    (n) => Number.isInteger(n) && n >= 0 && n < missions.length,
+                  ),
+              ),
+            ]
           : [];
       }
     } catch {}
-    if (!progress.completed.includes(mission.index)) progress.completed.push(mission.index);
-    progress.unlockedMission = Math.max(progress.unlockedMission, mission.index + 1);
+    if (!progress.completed.includes(mission.index))
+      progress.completed.push(mission.index);
+    progress.unlockedMission = Math.max(
+      progress.unlockedMission,
+      mission.index + 1,
+    );
     try {
       localStorage.setItem(storyProgressKey, JSON.stringify(progress));
     } catch {}
@@ -6641,6 +7219,43 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     return true;
   }
 
+  const isStoryBootstrap = (game) =>
+    !!(game?.storyMode || window.__kuroStoryLaunch?.mode === "story");
+  for (const method of [
+    "buildBackground",
+    "bakePlate",
+    "prewarm",
+    "warmUpcomingSector",
+  ]) {
+    const original = fp.prototype[method];
+    if (typeof original !== "function") continue;
+    fp.prototype[method] = function (...args) {
+      if (isStoryBootstrap(this)) return undefined;
+      return original.apply(this, args);
+    };
+  }
+  if (typeof fp.prototype.setBiome === "function") {
+    const oldSetBiome = fp.prototype.setBiome;
+    fp.prototype.setBiome = function (index, ...args) {
+      if (isStoryBootstrap(this)) {
+        const source = this.dlc && Array.isArray(Wi) ? Wi : Ws;
+        if (Array.isArray(source) && source.length)
+          this.biomeIdx =
+            (((Number(index) || 0) % source.length) + source.length) %
+            source.length;
+        return undefined;
+      }
+      return oldSetBiome.call(this, index, ...args);
+    };
+  }
+  if (typeof fp.prototype.drawStars === "function") {
+    const oldDrawStars = fp.prototype.drawStars;
+    fp.prototype.drawStars = function (...args) {
+      if (this.storyMode) return;
+      return oldDrawStars.apply(this, args);
+    };
+  }
+
   const oldNextWave = fp.prototype.nextWave;
   fp.prototype.nextWave = function (...args) {
     if (this._kuroStoryBootstrapping) return undefined;
@@ -6648,7 +7263,10 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     const mission = this.storyMode && this.storyMission;
     if (mission?.kind === "encounter") {
       const difficulty = difficultyFor(this);
-      this.spawnBudget = Math.max(2, mission.enemyBudget * (difficulty.enemyCount || 1));
+      this.spawnBudget = Math.max(
+        2,
+        mission.enemyBudget * (difficulty.enemyCount || 1),
+      );
       this.spawnT = Math.min(this.spawnT || 0.3, 0.35);
     }
     return result;
@@ -6657,7 +7275,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   const oldStartRun = fp.prototype.startRun;
   fp.prototype.startRun = function (...args) {
     const launch = window.__kuroStoryLaunch;
-    if (!launch || launch.mode !== "story") return oldStartRun.apply(this, args);
+    if (!launch || launch.mode !== "story")
+      return oldStartRun.apply(this, args);
 
     this._kuroStoryBootstrapping = true;
     let result;
@@ -6672,12 +7291,15 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     const stage = getStage(mission);
     if (!mission || !stage) return result;
     const difficulty = difficultyFor(this);
-    const intro = this.campaignScene?.prologue ? { ...this.campaignScene } : null;
+    const intro = this.campaignScene?.prologue
+      ? { ...this.campaignScene }
+      : null;
 
     this.storyMission = { ...mission, difficultyId: difficulty.id };
     this.storyMissionComplete = false;
     this.storyPendingCutscene = null;
     this.campaignStageIndex = mission.stageIndex;
+    applyStageColliders(this, this.storyMission);
     this.campaignScene = null;
     this.campaignFreeze = 0;
     this._voidCorruptionActive = false;
@@ -6695,12 +7317,19 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     this.nextWave();
 
     // Each chapter keeps one authored 3D arena for its two encounter levels and boss.
-    if (this.setBiome && Array.isArray(Wi) && Wi.length > mission.stageIndex + 5)
+    if (
+      this.setBiome &&
+      Array.isArray(Wi) &&
+      Wi.length > mission.stageIndex + 5
+    )
       this.setBiome(mission.stageIndex + 5);
 
     if (mission.kind === "encounter") {
       this.boss = null;
-      this.spawnBudget = Math.max(2, mission.enemyBudget * (difficulty.enemyCount || 1));
+      this.spawnBudget = Math.max(
+        2,
+        mission.enemyBudget * (difficulty.enemyCount || 1),
+      );
       this.spawnT = 0.3;
       this._voidCorruptionActive = false;
     } else if (this.boss) {
@@ -6711,7 +7340,10 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         ...boss.def,
         damage: (boss.def.damage || 1) * (difficulty.bossDamage || 1),
         speed: (boss.def.speed || 1) * (difficulty.bossSpeed || 1),
-        cadence: Math.max(0.4, (boss.def.cadence || 1) / (difficulty.bossSpeed || 1)),
+        cadence: Math.max(
+          0.4,
+          (boss.def.cadence || 1) / (difficulty.bossSpeed || 1),
+        ),
       };
       boss.phase = 1;
       boss.campaignPhase = 1;
@@ -6729,24 +7361,39 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       "Vou abrir caminho e proteger a âncora do Nexus.",
       "Reforços detectados. Vou limpar o setor antes do confronto.",
     ];
-    const scene = {
-      stageIndex: mission.stageIndex,
-      phase: mission.phase,
-      prologue: false,
-      timer: mission.kind === "boss" ? 7.2 : 6.2,
-      title: `${stage.location.split(" · ")[0]} · ${mission.phaseName}`,
-      bossName: mission.kind === "boss" ? `OBJETIVO · ${mission.objective}` : mission.objective,
-      bossQuote: mission.dialogue,
-      heroName,
-      heroQuote: mission.kind === "boss" ? stageLines[0] : encounterLines[mission.phase - 1],
-      action: mission.kind === "boss" ? stageLines[1] : mission.action,
-      color: stage.color || this.cls?.color || "#8fe9ff",
-      difficulty: difficulty.label,
-    };
+    const duration = mission.kind === "boss" ? 6.0 : 5.4;
+    const scene = stampCutscene(
+      {
+        stageIndex: mission.stageIndex,
+        phase: mission.phase,
+        prologue: false,
+        title: `${stage.location.split(" · ")[0]} · ${mission.phaseName}`,
+        stageTitle: stage.location,
+        bossName: stage.boss,
+        bossId: stage.id,
+        bossSigil: bossSigils[stage.id] || "V",
+        bossQuote: mission.dialogue,
+        heroId,
+        heroName,
+        heroSigil: heroSigils[heroId] || "✦",
+        heroColor: this.cls?.color || "#8fe9ff",
+        heroQuote:
+          mission.kind === "boss"
+            ? stageLines[0]
+            : encounterLines[mission.phase - 1],
+        action: mission.kind === "boss" ? stageLines[1] : mission.action,
+        objective: mission.objective,
+        color: stage.color || this.cls?.color || "#8fe9ff",
+        bossColor: stage.color || "#f03f57",
+        difficulty: difficulty.label,
+      },
+      duration,
+    );
 
     this.storyMission = { ...mission, difficultyId: difficulty.id };
+    applyStageColliders(this, this.storyMission);
     this.campaignScene = scene;
-    this.campaignFreeze = mission.kind === "boss" ? 4.8 : 4.1;
+    this.campaignFreeze = duration;
     this.setBanner?.(
       `FASE ${String(mission.index + 1).padStart(2, "0")}/18 · CAPÍTULO 0${mission.stageIndex + 1}`,
       `${stage.location.split(" · ")[0]} · ${mission.objective}`,
@@ -6756,9 +7403,33 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     );
 
     if (mission.index === 0 && intro) {
+      Object.assign(intro, {
+        stageIndex: 0,
+        phase: 0,
+        prologue: true,
+        title: "PRÓLOGO · PACTO DA FENDA",
+        stageTitle: "BERLIM · A PRIMEIRA ÂNCORA",
+        bossName: "VOID · PRESENÇA DETECTADA",
+        bossId: "void",
+        bossSigil: bossSigils.void,
+        bossQuote: "A realidade já cedeu. Vocês chegaram tarde.",
+        heroId,
+        heroName,
+        heroSigil: heroSigils[heroId] || "✦",
+        heroColor: this.cls?.color || "#8fe9ff",
+        heroQuote:
+          "A Fenda está ligada a seis âncoras. Vamos fechar uma por uma.",
+        action:
+          "O Pacto da Fenda ativa o mapa; o sinal de Berlim acende primeiro.",
+        objective: "ENCONTRAR A ÂNCORA DE BERLIM",
+        color: stage.color || "#8fe9ff",
+        bossColor: "#7f4cff",
+        difficulty: difficulty.label,
+      });
+      stampCutscene(intro, 6.4);
       this.storyPendingCutscene = scene;
       this.campaignScene = intro;
-      this.campaignFreeze = 5.4;
+      this.campaignFreeze = 6.4;
     }
     this.publish?.(true);
     return result;
@@ -6768,7 +7439,11 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   fp.prototype.spawnEnemy = function (...args) {
     const previousCount = this.enemies?.length || 0;
     const result = oldSpawnEnemy.apply(this, args);
-    if (this.storyMode && this.storyMission && this.enemies?.length > previousCount) {
+    if (
+      this.storyMode &&
+      this.storyMission &&
+      this.enemies?.length > previousCount
+    ) {
       const difficulty = difficultyFor(this);
       for (let i = previousCount; i < this.enemies.length; i++) {
         const enemy = this.enemies[i];
@@ -6828,22 +7503,157 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     ) {
       const stage = stages[boss.campaignStage];
       const lines = stage?.heroes?.[this.cls?.id] || [];
+      this.campaignScene.title = `${stage?.location?.split(" · ")[0] || "RAID"} · FASE ${phaseAfter}/3`;
+      this.campaignScene.bossName = stage?.boss || "BOSS";
+      this.campaignScene.bossId = stage?.id || "void";
+      this.campaignScene.bossSigil = bossSigils[stage?.id] || "V";
+      this.campaignScene.bossQuote =
+        phaseAfter === 2 ? stage?.phaseTwo : stage?.phaseThree;
+      this.campaignScene.heroId = this.cls?.id || "mago";
+      this.campaignScene.heroSigil = heroSigils[this.cls?.id] || "✦";
       this.campaignScene.heroName = this.cls?.name || "HERÓI";
+      this.campaignScene.heroColor = this.cls?.color || "#8fe9ff";
       if (lines[0]) this.campaignScene.heroQuote = lines[0];
       if (lines[1]) this.campaignScene.action = lines[1];
       this.campaignScene.phase = phaseAfter;
-      this.campaignScene.timer = Math.max(this.campaignScene.timer || 0, 3.5);
-      this.campaignFreeze = Math.max(this.campaignFreeze || 0, 1.25);
+      this.campaignScene.objective = "RAID · ENFRAQUECER A ÂNCORA";
+      stampCutscene(this.campaignScene, 5.2);
+      this.campaignFreeze = Math.max(this.campaignFreeze || 0, 4.2);
     }
     return result;
   };
 
+  const oldStoryTick = fp.prototype.tick;
+  if (typeof oldStoryTick === "function") {
+    fp.prototype.tick = function (dt, ...args) {
+      const sceneBefore = this.campaignScene;
+      const result = oldStoryTick.call(this, dt, ...args);
+      if (
+        this.storyMode &&
+        this.storyMission &&
+        this.campaignScene &&
+        this.campaignScene !== sceneBefore
+      ) {
+        const scene = this.campaignScene;
+        const duration =
+          scene.__kuroCineDuration ||
+          (this.storyMission.kind === "boss" ? 6.0 : 5.4);
+        if (!scene.__kuroCineId) stampCutscene(scene, duration);
+        this.campaignFreeze = Math.max(
+          this.campaignFreeze || 0,
+          Math.min(duration, 5.4),
+        );
+      }
+      return result;
+    };
+  }
+
+  const oldUpdatePlayer = fp.prototype.updatePlayer;
+  if (typeof oldUpdatePlayer === "function") {
+    fp.prototype.updatePlayer = function (...args) {
+      const result = oldUpdatePlayer.apply(this, args);
+      if (this.storyMode && this.storyMission)
+        resolveMapCollision(this.player, this);
+      return result;
+    };
+  }
+  const oldUpdateEnemies = fp.prototype.updateEnemies;
+  if (typeof oldUpdateEnemies === "function") {
+    fp.prototype.updateEnemies = function (...args) {
+      const result = oldUpdateEnemies.apply(this, args);
+      if (this.storyMode && this.storyMission)
+        for (const enemy of this.enemies || [])
+          if (enemy && !enemy.dead) resolveMapCollision(enemy, this);
+      return result;
+    };
+  }
+  const oldUpdateBoss = fp.prototype.updateBoss;
+  if (typeof oldUpdateBoss === "function") {
+    fp.prototype.updateBoss = function (...args) {
+      const result = oldUpdateBoss.apply(this, args);
+      if (this.storyMode && this.storyMission && this.boss && !this.boss.dead)
+        resolveMapCollision(this.boss, this);
+      return result;
+    };
+  }
+  const oldSegHitT = fp.prototype.segHitT;
+  if (typeof oldSegHitT === "function") {
+    fp.prototype.segHitT = function (x, y, dx, dy, tx, ty, radius) {
+      const hit = oldSegHitT.call(this, x, y, dx, dy, tx, ty, radius);
+      if (hit < 0 || !this.storyMode || !this.storyMission) return hit;
+      const wall = firstMapHit(x, y, dx, dy, 0, this.__kuroMapColliders);
+      return wall >= 0 && wall + 0.0001 < hit ? -1 : hit;
+    };
+  }
+  const oldFireBeam = fp.prototype.fireBeam;
+  if (typeof oldFireBeam === "function") {
+    fp.prototype.fireBeam = function (...args) {
+      const result = oldFireBeam.apply(this, args);
+      if (
+        this.storyMode &&
+        this.storyMission &&
+        this.player &&
+        this.eyeBeamT > 0
+      ) {
+        const dx = this.eyeBeamX - this.player.x,
+          dy = this.eyeBeamY - this.player.y;
+        const wall = firstMapHit(
+          this.player.x,
+          this.player.y,
+          dx,
+          dy,
+          1,
+          this.__kuroMapColliders,
+        );
+        if (wall >= 0) {
+          const stop = Math.max(0, wall - 0.006);
+          this.eyeBeamX = this.player.x + dx * stop;
+          this.eyeBeamY = this.player.y + dy * stop;
+        }
+      }
+      return result;
+    };
+  }
+  const oldUpdateBullets = fp.prototype.updateBullets;
+  if (typeof oldUpdateBullets === "function") {
+    fp.prototype.updateBullets = function (...args) {
+      if (this.storyMode && this.storyMission) {
+        const dt = Math.max(0, Number(args[0]) || 0);
+        const clip = (bullet, radius) => {
+          if (!bullet?.on) return;
+          const dx = (bullet.vx || 0) * dt,
+            dy = (bullet.vy || 0) * dt;
+          const hit = firstMapHit(
+            bullet.x,
+            bullet.y,
+            dx,
+            dy,
+            radius,
+            this.__kuroMapColliders,
+          );
+          if (hit < 0) return;
+          bullet.x += dx * Math.max(0, hit - 0.004);
+          bullet.y += dy * Math.max(0, hit - 0.004);
+          bullet.on = false;
+        };
+        for (const bullet of this.pBullets || [])
+          clip(bullet, bullet?.w?.hitRadius || bullet?.r || 3);
+        for (const bullet of this.eBullets || [])
+          if (bullet?.kind !== "ring") clip(bullet, bullet.r || 4);
+      }
+      return oldUpdateBullets.apply(this, args);
+    };
+  }
+
   const oldGameOverScreen = a2;
   a2 = function StoryLevelResult(props) {
     const result = props?.result;
-    const mission = result?.storyComplete ? getMission(result.storyMissionIndex) : null;
+    const mission = result?.storyComplete
+      ? getMission(result.storyMissionIndex)
+      : null;
     const tree = oldGameOverScreen(props);
-    if (!mission || mission.kind !== "encounter" || result.storyFinal) return tree;
+    if (!mission || mission.kind !== "encounter" || result.storyFinal)
+      return tree;
     const stage = getStage(mission);
     const oldText = `A ${stage.boss} foi derrotado. A próxima fase está liberada e seu progresso ficou salvo neste navegador.`;
     const replace = (node) => {
@@ -6863,8 +7673,277 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     return replace(tree);
   };
 
-  // A small pure-geometry WebGL renderer: no Three.js CDN, no artwork backgrounds.
-  const geometryApi = window.__kuroStage3DGeometry;
+  function addSphereSheen(ctx, scale, radius, tint) {
+    if (!ctx?.createRadialGradient) return;
+    const factor = Math.max(0.2, Number(scale) || 1);
+    ctx.save();
+    ctx.scale(factor, factor);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.15, 0, Math.PI * 2);
+    ctx.clip();
+    const gloss = ctx.createRadialGradient(-7, -10, 1, -5, -7, radius * 1.25);
+    gloss.addColorStop(0, "rgba(255,255,255,.56)");
+    gloss.addColorStop(0.22, "rgba(255,255,255,.16)");
+    gloss.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = gloss;
+    ctx.fillRect(-radius, -radius, radius * 2, radius * 2);
+    ctx.restore();
+    ctx.save();
+    ctx.scale(factor, factor);
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.38;
+    ctx.strokeStyle = tint;
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.8, -2.55, -1.58);
+    ctx.stroke();
+    ctx.restore();
+  }
+  const originalDrawHeroLook = drawHeroLook;
+  drawHeroLook = function (ctx, id, time = 0, hurt = false, scale = 1) {
+    const result = originalDrawHeroLook(ctx, id, time, hurt, scale);
+    const tint =
+      {
+        mago: "#8798ff",
+        atirador: "#d9e3f2",
+        velocista: "#fff2a0",
+        bruto: "#9bdd5d",
+        robo: "#ff7b61",
+        samurai: "#ff8e84",
+        engenheira: "#ffe580",
+        oraculo: "#a97cf3",
+        necromante: "#a67aff",
+        telepata: "#ffad6c",
+        criomante: "#c4f6ff",
+        sentinela: "#fff0a1",
+      }[id] || "#8fe9ff";
+    addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint);
+    return result;
+  };
+  const originalDrawBossAvatar = drawBossAvatar;
+  drawBossAvatar = function (ctx, id, time = 0, hurt = false, scale = 1) {
+    const result = originalDrawBossAvatar(ctx, id, time, hurt, scale);
+    const bossTint =
+      {
+        redskull: "#ff7770",
+        mysterio: "#9effd5",
+        magneto: "#c19aff",
+        ultron: "#f5fbff",
+        thanos: "#c89df0",
+        void: "#b69cff",
+      }[id] || "#f07179";
+    addSphereSheen(
+      ctx,
+      scale * (bossSizeMultipliers[id] || 1),
+      22,
+      hurt ? "#ffffff" : bossTint,
+    );
+    return result;
+  };
+
+  function paintCineOrb(canvas, id, isBoss) {
+    const ctx = canvas?.getContext?.("2d");
+    if (!ctx) return;
+    canvas.width = 168;
+    canvas.height = 168;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(84, 84);
+    if (isBoss) drawBossAvatar(ctx, id || "void", 0, false, 2.45);
+    else drawHeroLook(ctx, id || "mago", 0, false, 2.45);
+    ctx.restore();
+  }
+
+  function skipCutscene(game) {
+    const scene = game?.campaignScene;
+    if (!scene) return;
+    scene.timer = 0;
+    game.campaignFreeze = 0;
+    const ui = game.__kuroCineUi;
+    if (ui) {
+      ui.root.classList.remove("kv-cine--active");
+      ui.root.style.display = "none";
+      ui.root.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  function ensureCutsceneUi(game) {
+    if (game.__kuroCineUi) return game.__kuroCineUi;
+    const root = document.createElement("div");
+    root.className = "kv-cine";
+    root.setAttribute("aria-hidden", "true");
+    root.innerHTML = `
+      <div class="kv-cine__shade"></div>
+      <section class="kv-cine__frame" aria-label="Cutscene da história">
+        <header class="kv-cine__header">
+          <div><span class="kv-cine__eyebrow" data-cine-top>KUROVERSE · SEQUÊNCIA DE HISTÓRIA</span><span class="kv-cine__stage" data-cine-stage></span></div>
+          <span class="kv-cine__difficulty" data-cine-difficulty></span>
+        </header>
+        <h2 class="kv-cine__title" data-cine-title></h2>
+        <div class="kv-cine__art" aria-hidden="true">
+          <div class="kv-cine__orbit kv-cine__orbit--one"></div><div class="kv-cine__orbit kv-cine__orbit--two"></div>
+          <div class="kv-cine__beam"></div>
+          <div class="kv-cine__actor kv-cine__actor--hero"><div class="kv-cine__orb"><canvas data-cine-hero></canvas></div><span class="kv-cine__actor-name" data-cine-hero-name></span><span class="kv-cine__actor-role" data-cine-hero-role></span></div>
+          <div class="kv-cine__actor kv-cine__actor--boss"><div class="kv-cine__orb kv-cine__orb--boss"><canvas data-cine-boss></canvas></div><span class="kv-cine__actor-name" data-cine-boss-name></span><span class="kv-cine__actor-role" data-cine-boss-role></span></div>
+          <div class="kv-cine__impact" data-cine-impact>FENDA ABERTA</div>
+        </div>
+        <div class="kv-cine__dialogue">
+          <div class="kv-cine__speaker" data-cine-speaker></div>
+          <div class="kv-cine__line" data-cine-line></div>
+          <div class="kv-cine__foot"><span class="kv-cine__objective" data-cine-objective></span><span class="kv-cine__counter" data-cine-counter></span></div>
+          <div class="kv-cine__progress"><span data-cine-progress></span></div>
+        </div>
+      </section>
+      <button type="button" class="kv-cine__skip" data-cine-skip>PULAR CENA <kbd>ENTER</kbd></button>`;
+    document.body.appendChild(root);
+    const find = (selector) => root.querySelector(selector);
+    const ui = {
+      root,
+      stage: find("[data-cine-stage]"),
+      difficulty: find("[data-cine-difficulty]"),
+      title: find("[data-cine-title]"),
+      hero: find("[data-cine-hero]"),
+      boss: find("[data-cine-boss]"),
+      heroName: find("[data-cine-hero-name]"),
+      bossName: find("[data-cine-boss-name]"),
+      heroRole: find("[data-cine-hero-role]"),
+      bossRole: find("[data-cine-boss-role]"),
+      speaker: find("[data-cine-speaker]"),
+      line: find("[data-cine-line]"),
+      objective: find("[data-cine-objective]"),
+      counter: find("[data-cine-counter]"),
+      progress: find("[data-cine-progress]"),
+      impact: find("[data-cine-impact]"),
+      key: "",
+      beat: -1,
+      lastLine: "",
+      lastProgress: -1,
+    };
+    ui.skip = find("[data-cine-skip]");
+    ui.skip.addEventListener("click", () => skipCutscene(game));
+    ui.keyHandler = (event) => {
+      if (
+        (event.key === "Enter" || event.key === "Escape") &&
+        ui.root.style.display !== "none"
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation?.();
+        skipCutscene(game);
+      }
+    };
+    window.addEventListener("keydown", ui.keyHandler, true);
+    game.__kuroCineUi = ui;
+    return ui;
+  }
+
+  function syncCutscene(game) {
+    const scene = game.campaignScene;
+    const active = !!(
+      game.storyMode &&
+      game.storyMission &&
+      game.status === "playing" &&
+      scene &&
+      scene.timer > 0 &&
+      game.campaignFreeze > 0
+    );
+    const existing = game.__kuroCineUi;
+    if (!active) {
+      if (existing) {
+        existing.root.classList.remove("kv-cine--active");
+        existing.root.style.display = "none";
+        existing.root.setAttribute("aria-hidden", "true");
+      }
+      return;
+    }
+    if (!scene.__kuroCineId)
+      stampCutscene(scene, Math.max(1, scene.timer || 1));
+    const ui = ensureCutsceneUi(game);
+    ui.root.style.display = "block";
+    ui.root.setAttribute("aria-hidden", "false");
+    if (ui.key !== scene.__kuroCineId) {
+      ui.key = scene.__kuroCineId;
+      const stage = stages[scene.stageIndex] || stages[0];
+      ui.root.style.setProperty(
+        "--cine-hero",
+        scene.heroColor || game.cls?.color || "#8fe9ff",
+      );
+      ui.root.style.setProperty(
+        "--cine-boss",
+        scene.bossColor || scene.color || stage?.color || "#f23f55",
+      );
+      ui.stage.textContent = `${scene.stageTitle || stage?.location || "Pacto da Fenda"} · CAPÍTULO ${String((scene.stageIndex || 0) + 1).padStart(2, "0")}`;
+      ui.difficulty.textContent = `DIFICULDADE · ${String(scene.difficulty || game.storyDifficulty?.label || "Médio").toUpperCase()}`;
+      ui.title.textContent = scene.title || "PACTO DA FENDA";
+      ui.heroName.textContent = scene.heroName || game.cls?.name || "HERÓI";
+      ui.bossName.textContent = scene.bossName || stage?.boss || "AMEAÇA";
+      ui.heroRole.textContent = `${scene.heroSigil || "✦"} · PACTO DA FENDA`;
+      ui.bossRole.textContent = `${scene.bossSigil || "V"} · AMEAÇA DETECTADA`;
+      ui.objective.textContent = `OBJETIVO · ${scene.objective || game.storyMission?.objective || "AVANÇAR"}`;
+      ui.counter.textContent = `FASE ${String((game.storyMission?.index || 0) + 1).padStart(2, "0")}/18`;
+      ui.impact.textContent = scene.prologue
+        ? "PACTO ATIVADO"
+        : scene.phase > 1
+          ? `FASE ${scene.phase} · RAID`
+          : "CONTATO CONFIRMADO";
+      paintCineOrb(ui.hero, scene.heroId || game.cls?.id || "mago", false);
+      paintCineOrb(ui.boss, scene.bossId || stage?.id || "void", true);
+      ui.root.classList.remove("kv-cine--active");
+      void ui.root.offsetWidth;
+      ui.root.classList.add("kv-cine--active");
+      ui.beat = -1;
+      ui.lastLine = "";
+      ui.lastProgress = -1;
+    }
+    const duration = Math.max(
+      1,
+      scene.__kuroCineDuration || scene.duration || scene.timer || 1,
+    );
+    const elapsed = Math.max(
+      0,
+      duration - Math.max(0, Math.min(duration, scene.timer || 0)),
+    );
+    const segment = duration / 3;
+    const beat = Math.min(2, Math.floor(elapsed / segment));
+    if (ui.beat !== beat) {
+      ui.beat = beat;
+      ui.root.dataset.cineBeat = String(beat);
+      ui.impact.textContent = [
+        "SINAL DA AMEAÇA",
+        "RESPOSTA DO HERÓI",
+        "AÇÃO · ÂNCORA",
+      ][beat];
+    }
+    const copy = [
+      scene.bossQuote || "A Fenda reage ao sinal da âncora.",
+      scene.heroQuote || "O Pacto da Fenda continua.",
+      scene.action || scene.objective || "A missão começa agora.",
+    ][beat];
+    const speaker =
+      beat === 0
+        ? scene.bossName || "VOZ DA FENDA"
+        : beat === 1
+          ? scene.heroName || "HERÓI"
+          : "NARRAÇÃO TÁTICA";
+    const chars = Math.max(
+      0,
+      Math.min(copy.length, Math.floor((elapsed - beat * segment) * 55)),
+    );
+    const line = copy.slice(0, chars);
+    if (ui.speaker.textContent !== speaker) ui.speaker.textContent = speaker;
+    if (ui.lastLine !== line) {
+      ui.line.textContent = line;
+      ui.lastLine = line;
+    }
+    const progress = Math.min(100, Math.round((elapsed / duration) * 100));
+    if (Math.abs(progress - ui.lastProgress) >= 2 || progress === 100) {
+      ui.progress.style.width = `${progress}%`;
+      ui.lastProgress = progress;
+    }
+  }
+
+  // A compact WebGL renderer; 2D characters and gameplay stay on Canvas2D.
   const vertexShaderSource = `
     attribute vec3 aPosition;
     attribute vec3 aNormal;
@@ -6892,7 +7971,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     varying vec3 vWorldPosition;
     void main() {
       float diffuse = max(dot(normalize(vNormal), normalize(uLightDirection)), 0.0);
-      float lighting = 0.38 + diffuse * 0.62;
+      float lighting = 0.42 + diffuse * 0.58;
       vec3 litColor = vColor * lighting;
       float distanceToCamera = length(vWorldPosition.xz - uCameraPosition.xz);
       float fog = smoothstep(uFogStart, uFogEnd, distanceToCamera);
@@ -6905,17 +7984,102 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      const message = gl.getShaderInfoLog(shader) || "Falha ao compilar shader WebGL.";
+      const message =
+        gl.getShaderInfoLog(shader) || "Falha ao compilar shader WebGL.";
       gl.deleteShader(shader);
       throw new Error(message);
     }
     return shader;
   }
 
+  function acceptStageMesh(state, game, key, source) {
+    if (
+      state.destroyed ||
+      game.__kuroStage3D !== state ||
+      state.pendingKey !== key
+    )
+      return;
+    const vertices =
+      source instanceof Float32Array ? source : new Float32Array(source);
+    if (!vertices.length || vertices.length % 9) {
+      state.pendingKey = "";
+      state.pendingRequest = null;
+      return;
+    }
+    const gl = state.gl;
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    state.mesh = { key, buffer, count: vertices.length / 9 };
+    state.meshKey = key;
+    state.pendingKey = "";
+    state.pendingRequest = null;
+  }
+
+  function buildStageMeshWhenIdle(state, game, request) {
+    const build = () => {
+      if (
+        state.destroyed ||
+        state.pendingKey !== request.key ||
+        game.__kuroStage3D !== state
+      )
+        return;
+      try {
+        const data = geometryApi.makeStageData(
+          request.stageIndex,
+          request.width,
+          request.height,
+          request.stage,
+          request.viewportWidth,
+          request.viewportHeight,
+        );
+        acceptStageMesh(state, game, request.key, data.vertices);
+      } catch (error) {
+        state.pendingKey = "";
+        state.pendingRequest = null;
+        console.warn("Kuroverse: não foi possível preparar a arena 3D.", error);
+      }
+    };
+    if (typeof window.requestIdleCallback === "function")
+      window.requestIdleCallback(build, { timeout: 350 });
+    else window.setTimeout(build, 30);
+  }
+
+  function resizeStageCanvas(game, state) {
+    const sourceWidth = Math.max(2, game.canvas.width || game.W || 2);
+    const sourceHeight = Math.max(2, game.canvas.height || game.H || 2);
+    const quality = Number(game.quality);
+    const memory = Number(navigator.deviceMemory) || 0;
+    const cores = Number(navigator.hardwareConcurrency) || 0;
+    let scale = 0.62;
+    if (
+      (memory > 0 && memory <= 2) ||
+      (cores > 0 && cores <= 2) ||
+      quality < 0.53
+    )
+      scale = 0.38;
+    else if (game.touchMode || game.qualityLocked || quality < 0.72)
+      scale = 0.46;
+    else if (quality < 0.86) scale = 0.54;
+    const width = Math.max(2, Math.floor(sourceWidth * scale));
+    const height = Math.max(2, Math.floor(sourceHeight * scale));
+    if (state.canvas.width !== width || state.canvas.height !== height) {
+      state.canvas.width = width;
+      state.canvas.height = height;
+    }
+    state.renderScale = scale;
+  }
+
   function createStageRenderer(game) {
-    if (game.__kuroStage3D || game.__kuroStage3DUnavailable) return game.__kuroStage3D || null;
+    if (game.__kuroStage3D || game.__kuroStage3DUnavailable)
+      return game.__kuroStage3D || null;
     const host = game.canvas?.parentElement;
-    if (!host) return null;
+    if (!host) {
+      game.__kuroStage3DUnavailable = true;
+      game.__kuroMapColliders = [];
+      window.__kuroStage3DAvailable = false;
+      return null;
+    }
     try {
       const canvas = document.createElement("canvas");
       canvas.className = "kv-stage-webgl";
@@ -6930,6 +8094,8 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         pointerEvents: "none",
         background: "transparent",
       });
+      if (window.getComputedStyle?.(host)?.position === "static")
+        host.style.position = "relative";
       host.insertBefore(canvas, game.canvas);
       Object.assign(game.canvas.style, {
         position: "absolute",
@@ -6937,27 +8103,48 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         zIndex: "1",
         backgroundColor: "transparent",
       });
-      const gl = canvas.getContext("webgl", {
-        alpha: false,
-        antialias: true,
-        depth: true,
-        preserveDrawingBuffer: false,
-        powerPreference: "high-performance",
-      }) || canvas.getContext("experimental-webgl");
-      if (!gl) throw new Error("Este navegador não disponibilizou WebGL para o mapa 3D.");
-      const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-      const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+      const gl =
+        canvas.getContext("webgl", {
+          alpha: false,
+          antialias: false,
+          depth: true,
+          preserveDrawingBuffer: false,
+          powerPreference: "low-power",
+          failIfMajorPerformanceCaveat: false,
+        }) || canvas.getContext("experimental-webgl");
+      if (!gl)
+        throw new Error(
+          "Este navegador não disponibilizou WebGL para o mapa 3D.",
+        );
+      const vertexShader = compileShader(
+        gl,
+        gl.VERTEX_SHADER,
+        vertexShaderSource,
+      );
+      const fragmentShader = compileShader(
+        gl,
+        gl.FRAGMENT_SHADER,
+        fragmentShaderSource,
+      );
       const program = gl.createProgram();
       gl.attachShader(program, vertexShader);
       gl.attachShader(program, fragmentShader);
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-        throw new Error(gl.getProgramInfoLog(program) || "Falha ao iniciar o renderer 3D.");
+        throw new Error(
+          gl.getProgramInfoLog(program) || "Falha ao iniciar o renderer 3D.",
+        );
       const state = {
         canvas,
         gl,
         program,
-        meshes: new Map(),
+        mesh: null,
+        meshKey: "",
+        pendingKey: "",
+        pendingRequest: null,
+        worker: null,
+        workerFailed: false,
+        destroyed: false,
         attributes: {
           position: gl.getAttribLocation(program, "aPosition"),
           normal: gl.getAttribLocation(program, "aNormal"),
@@ -6977,28 +8164,78 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       gl.disable(gl.CULL_FACE);
       gl.disable(gl.BLEND);
       game.__kuroStage3D = state;
+      resizeStageCanvas(game, state);
+      const worker = geometryApi?.createGeometryWorker?.();
+      if (worker) {
+        state.worker = worker;
+        worker.onmessage = (event) => {
+          const data = event.data || {};
+          if (state.pendingKey !== data.key) return;
+          if (data.error) {
+            state.workerFailed = true;
+            const request = state.pendingRequest;
+            if (request) buildStageMeshWhenIdle(state, game, request);
+            return;
+          }
+          acceptStageMesh(state, game, data.key, data.vertices);
+        };
+        worker.onerror = () => {
+          state.worker?.terminate?.();
+          state.worker = null;
+          state.workerFailed = true;
+          if (state.pendingRequest)
+            buildStageMeshWhenIdle(state, game, state.pendingRequest);
+        };
+      }
       window.__kuroStage3DAvailable = true;
       return state;
     } catch (error) {
       game.__kuroStage3DUnavailable = true;
+      game.__kuroMapColliders = [];
       window.__kuroStage3DAvailable = false;
-      console.error("Kuroverse 3D map renderer:", error);
+      console.warn("Kuroverse 3D map renderer:", error);
       return null;
     }
   }
 
   function getStageMesh(state, game, stage, stageIndex) {
     const key = `${stage?.id || stageIndex}:${game.worldW}x${game.worldH}:${game.W}x${game.H}`;
-    if (state.meshes.has(key)) return state.meshes.get(key);
-    const data = geometryApi?.makeStageGeometry(stageIndex, game.worldW, game.worldH, stage, game.W, game.H);
-    if (!data?.length) return null;
-    const gl = state.gl;
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-    const mesh = { buffer, count: data.length / 9 };
-    state.meshes.set(key, mesh);
-    return mesh;
+    if (state.meshKey === key && state.mesh) return state.mesh;
+    if (state.pendingKey !== key) {
+      if (state.mesh?.buffer) state.gl.deleteBuffer(state.mesh.buffer);
+      state.mesh = null;
+      state.meshKey = "";
+      state.pendingKey = key;
+      const safeStage = {
+        id: stage?.id,
+        biome: {
+          floor: stage?.biome?.floor,
+          blob: stage?.biome?.blob,
+          blob2: stage?.biome?.blob2,
+          accent: stage?.biome?.accent,
+          sky: stage?.biome?.sky,
+        },
+      };
+      const request = {
+        key,
+        stageIndex,
+        width: game.worldW,
+        height: game.worldH,
+        stage: safeStage,
+        viewportWidth: game.W,
+        viewportHeight: game.H,
+      };
+      state.pendingRequest = request;
+      if (state.worker && !state.workerFailed) {
+        try {
+          state.worker.postMessage(request);
+        } catch {
+          state.workerFailed = true;
+          buildStageMeshWhenIdle(state, game, request);
+        }
+      } else buildStageMeshWhenIdle(state, game, request);
+    }
+    return null;
   }
 
   function drawStage3D(game) {
@@ -7008,28 +8245,30 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     if (!stage) return false;
     const state = createStageRenderer(game);
     if (!state) return false;
-    const gl = state.gl;
-    const canvas = state.canvas;
-    if (canvas.width !== game.canvas.width || canvas.height !== game.canvas.height) {
-      canvas.width = game.canvas.width;
-      canvas.height = game.canvas.height;
-    }
+    resizeStageCanvas(game, state);
+    const gl = state.gl,
+      canvas = state.canvas;
     canvas.style.display = "block";
     gl.viewport(0, 0, canvas.width, canvas.height);
     const sky = geometryApi.hexColor(stage.biome?.sky || "#07070d");
     gl.clearColor(sky[0], sky[1], sky[2], 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const mesh = getStageMesh(state, game, stage, stageIndex);
-    if (!mesh) return false;
+    if (!mesh) return true; // Mesh generation is asynchronous; never stall a frame.
 
-    const pitch = 22 * Math.PI / 180;
-    const altitude = 1500;
-    const camX = Math.round(game.camX || 0);
-    const camY = Math.round(game.camY || 0);
-    const target = [camX + game.W / 2, 0, camY + game.H / 2];
-    const eye = [target[0], altitude, target[2] + altitude * Math.tan(pitch)];
+    // Fixed, orthographic high-angle camera: the player moves through a legible overhead city.
+    const pitch = (26 * Math.PI) / 180;
+    const altitude = Math.max(game.W, game.H) * 2.8;
+    const camX = Math.round(game.camX || 0),
+      camY = Math.round(game.camY || 0);
+    const target = [camX + game.W / 2, -14, camY + game.H / 2];
+    const eye = [
+      target[0],
+      target[1] + altitude,
+      target[2] + altitude * Math.tan(pitch),
+    ];
     const view = geometryApi.lookAt4(eye, target, [0, 0, -1]);
-    const zoom = Math.max(0.5, Math.min(2, Number(game.zoom) || 1));
+    const zoom = Math.max(0.65, Math.min(1.5, Number(game.zoom) || 1));
     const projectedHeight = (game.H * Math.cos(pitch)) / zoom;
     const projectedWidth = game.W / zoom;
     const projection = geometryApi.ortho4(
@@ -7038,24 +8277,45 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       -projectedHeight / 2,
       projectedHeight / 2,
       0.1,
-      5000,
+      Math.max(game.worldW, game.worldH) * 4,
     );
     const mvp = geometryApi.multiply4(projection, view);
     gl.useProgram(state.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
     const stride = 9 * Float32Array.BYTES_PER_ELEMENT;
     gl.enableVertexAttribArray(state.attributes.position);
-    gl.vertexAttribPointer(state.attributes.position, 3, gl.FLOAT, false, stride, 0);
+    gl.vertexAttribPointer(
+      state.attributes.position,
+      3,
+      gl.FLOAT,
+      false,
+      stride,
+      0,
+    );
     gl.enableVertexAttribArray(state.attributes.normal);
-    gl.vertexAttribPointer(state.attributes.normal, 3, gl.FLOAT, false, stride, 3 * Float32Array.BYTES_PER_ELEMENT);
+    gl.vertexAttribPointer(
+      state.attributes.normal,
+      3,
+      gl.FLOAT,
+      false,
+      stride,
+      3 * Float32Array.BYTES_PER_ELEMENT,
+    );
     gl.enableVertexAttribArray(state.attributes.color);
-    gl.vertexAttribPointer(state.attributes.color, 3, gl.FLOAT, false, stride, 6 * Float32Array.BYTES_PER_ELEMENT);
+    gl.vertexAttribPointer(
+      state.attributes.color,
+      3,
+      gl.FLOAT,
+      false,
+      stride,
+      6 * Float32Array.BYTES_PER_ELEMENT,
+    );
     gl.uniformMatrix4fv(state.uniforms.mvp, false, mvp);
     gl.uniform3f(state.uniforms.light, -0.42, 1, 0.58);
-    gl.uniform3f(state.uniforms.camera, target[0], altitude, target[2]);
+    gl.uniform3f(state.uniforms.camera, eye[0], eye[1], eye[2]);
     gl.uniform3f(state.uniforms.fogColor, sky[0], sky[1], sky[2]);
-    gl.uniform1f(state.uniforms.fogStart, Math.max(game.W, game.H) * 0.78);
-    gl.uniform1f(state.uniforms.fogEnd, Math.max(game.W, game.H) * 1.65);
+    gl.uniform1f(state.uniforms.fogStart, Math.max(game.W, game.H) * 0.85);
+    gl.uniform1f(state.uniforms.fogEnd, Math.max(game.W, game.H) * 2.0);
     gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
     return true;
   }
@@ -7073,7 +8333,48 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       this._voidCorruptionActive = false;
       this._voidCorruptionDefeat = false;
       this.voidCorruption = 0;
+      this.__kuroMapColliders = [];
+      this.__kuroMapColliderKey = "";
+      if (this.__kuroCineUi) {
+        window.removeEventListener(
+          "keydown",
+          this.__kuroCineUi.keyHandler,
+          true,
+        );
+        this.__kuroCineUi.root.remove();
+        this.__kuroCineUi = null;
+      }
       return oldToMenu.apply(this, args);
+    };
+  }
+
+  const oldDestroy = fp.prototype.destroy;
+  if (typeof oldDestroy === "function") {
+    fp.prototype.destroy = function (...args) {
+      const renderer = this.__kuroStage3D;
+      if (renderer) {
+        renderer.destroyed = true;
+        renderer.worker?.terminate?.();
+        renderer.worker = null;
+        try {
+          if (renderer.mesh?.buffer)
+            renderer.gl.deleteBuffer(renderer.mesh.buffer);
+          renderer.gl.getExtension("WEBGL_lose_context")?.loseContext();
+        } catch {}
+        renderer.canvas.remove();
+        this.__kuroStage3D = null;
+        window.__kuroStage3DAvailable = false;
+      }
+      if (this.__kuroCineUi) {
+        window.removeEventListener(
+          "keydown",
+          this.__kuroCineUi.keyHandler,
+          true,
+        );
+        this.__kuroCineUi.root.remove();
+        this.__kuroCineUi = null;
+      }
+      return oldDestroy.apply(this, args);
     };
   }
 
@@ -7081,11 +8382,18 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   if (typeof oldResize === "function") {
     fp.prototype.resize = function (...args) {
       const result = oldResize.apply(this, args);
-      const renderer = createStageRenderer(this);
-      if (renderer) {
-        renderer.canvas.width = this.canvas.width;
-        renderer.canvas.height = this.canvas.height;
-        renderer.gl.viewport(0, 0, renderer.canvas.width, renderer.canvas.height);
+      if (this.storyMode && this.storyMission) {
+        applyStageColliders(this, this.storyMission);
+        const renderer = this.__kuroStage3D;
+        if (renderer) {
+          resizeStageCanvas(this, renderer);
+          renderer.gl.viewport(
+            0,
+            0,
+            renderer.canvas.width,
+            renderer.canvas.height,
+          );
+        }
       }
       return result;
     };
@@ -7102,9 +8410,12 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
       if (activeStoryScene) this.__kuroStage3DVisible = drawStage3D(this);
       else {
         this.__kuroStage3DVisible = false;
-        if (this.__kuroStage3D?.canvas) this.__kuroStage3D.canvas.style.display = "none";
+        if (this.__kuroStage3D?.canvas)
+          this.__kuroStage3D.canvas.style.display = "none";
       }
-      return oldRender.apply(this, args);
+      const result = oldRender.apply(this, args);
+      syncCutscene(this);
+      return result;
     };
   }
 
@@ -7136,14 +8447,18 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   const oldDrawOverlays = fp.prototype.drawOverlays;
   if (typeof oldDrawOverlays === "function") {
     fp.prototype.drawOverlays = function (...args) {
-      const mission = this.storyMode && this.storyMission ? this.storyMission : null;
+      const mission =
+        this.storyMode && this.storyMission ? this.storyMission : null;
       if (!mission) return oldDrawOverlays.apply(this, args);
-      this.storyMission = null; // Suppress the prior illustrated map overlay in gameplay.
+      const campaignScene = this.campaignScene;
+      this.storyMission = null; // Hide the previous illustration; the DOM cutscene replaces it.
+      this.campaignScene = null;
       let result;
       try {
         result = oldDrawOverlays.apply(this, args);
       } finally {
         this.storyMission = mission;
+        this.campaignScene = campaignScene;
       }
       const stage = getStage(mission);
       const ctx = this.ctx;
@@ -7175,17 +8490,56 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     };
   }
 
-  if (typeof window.__kuroLaserController?.installLaserController === "function")
-    window.__kuroLaserController.installLaserController(fp.prototype, window.__kuroSfxBank, q);
+  if (
+    typeof window.__kuroLaserController?.installLaserController === "function"
+  )
+    window.__kuroLaserController.installLaserController(
+      fp.prototype,
+      window.__kuroSfxBank,
+      q,
+    );
 
   const style = document.createElement("style");
   style.textContent = `
     .kv-stage-webgl{image-rendering:auto;transform:translateZ(0)}
     .kv-story-screen .kv-story-phase-name{line-height:1.35}
+    .kv-cine{position:fixed;inset:0;z-index:9999;display:none;overflow:hidden;color:#f5f7ff;font-family:'Chakra Petch',system-ui,sans-serif;pointer-events:none;isolation:isolate}
+    .kv-cine--active{display:block;animation:kv-cine-in .42s ease-out both}
+    .kv-cine__shade{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,rgba(22,28,44,.46),rgba(3,5,12,.88) 72%),linear-gradient(180deg,rgba(2,4,10,.58),transparent 28%,transparent 65%,rgba(2,4,10,.88));}
+    .kv-cine__frame{position:absolute;inset:0;display:grid;grid-template-rows:auto auto 1fr auto;gap:clamp(8px,1.5vh,18px);padding:clamp(16px,4vw,52px);padding-bottom:clamp(76px,10vh,116px)}
+    .kv-cine__header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-top:1px solid rgba(255,255,255,.26);padding-top:12px;text-transform:uppercase;letter-spacing:.12em}
+    .kv-cine__eyebrow{display:block;color:var(--cine-hero,#8fe9ff);font-size:clamp(9px,1.2vw,12px);font-weight:800}
+    .kv-cine__stage{display:block;margin-top:5px;color:rgba(236,240,250,.65);font-size:clamp(8px,1vw,10px);letter-spacing:.18em}
+    .kv-cine__difficulty{padding:7px 10px;border:1px solid rgba(255,255,255,.18);background:rgba(4,7,15,.55);color:#c8f566;font-size:9px;letter-spacing:.12em;white-space:nowrap}
+    .kv-cine__title{margin:0;color:#fff;font-size:clamp(21px,4vw,42px);line-height:1.05;font-weight:900;letter-spacing:.035em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.75);max-width:min(900px,90vw)}
+    .kv-cine__art{position:relative;min-height:190px;max-height:47vh;align-self:center;width:100%;}
+    .kv-cine__orbit{position:absolute;left:50%;top:50%;width:min(74vw,720px);height:min(25vh,230px);border:1px solid rgba(155,186,219,.12);border-radius:50%;transform:translate(-50%,-50%) rotate(-8deg)}
+    .kv-cine__orbit--two{width:min(60vw,590px);height:min(19vh,170px);transform:translate(-50%,-50%) rotate(9deg);border-color:rgba(255,255,255,.08)}
+    .kv-cine__beam{position:absolute;left:28%;right:28%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--cine-hero),rgba(255,255,255,.9),var(--cine-boss),transparent);filter:drop-shadow(0 0 12px var(--cine-hero));animation:kv-beam-pulse 1.8s ease-in-out infinite;}
+    .kv-cine__actor{position:absolute;top:50%;display:flex;flex-direction:column;align-items:center;gap:7px;transform:translateY(-50%);width:clamp(120px,20vw,220px);text-align:center}
+    .kv-cine__actor--hero{left:clamp(8px,12vw,180px)}.kv-cine__actor--boss{right:clamp(8px,12vw,180px)}
+    .kv-cine__orb{display:grid;place-items:center;width:clamp(94px,15vw,164px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 36% 27%,rgba(255,255,255,.22),rgba(16,23,36,.9) 60%,rgba(3,5,12,.98));border:1px solid var(--cine-hero);box-shadow:0 0 22px var(--cine-hero),inset 0 0 22px rgba(255,255,255,.1);border:1px solid color-mix(in srgb,var(--cine-hero) 72%,white 10%);box-shadow:0 0 22px color-mix(in srgb,var(--cine-hero) 45%,transparent),inset 0 0 22px rgba(255,255,255,.1);animation:kv-orb-float 3.2s ease-in-out infinite}
+    .kv-cine__orb--boss{border-color:var(--cine-boss);box-shadow:0 0 26px var(--cine-boss),inset 0 0 24px rgba(255,255,255,.12);border-color:color-mix(in srgb,var(--cine-boss) 78%,white 6%);box-shadow:0 0 26px color-mix(in srgb,var(--cine-boss) 47%,transparent),inset 0 0 24px rgba(255,255,255,.12);animation-delay:-1.2s}
+    .kv-cine__orb canvas{width:92%;height:92%;display:block}
+    .kv-cine__actor-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1.45vw,15px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 8px #000}
+    .kv-cine__actor-role{color:rgba(235,240,248,.57);font-size:8px;letter-spacing:.22em;text-transform:uppercase}
+    .kv-cine__impact{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:8px 12px;border:1px solid rgba(255,255,255,.16);background:rgba(4,7,14,.76);color:#f7f9ff;font-size:9px;font-weight:800;letter-spacing:.2em;white-space:nowrap;box-shadow:0 0 24px rgba(0,0,0,.6)}
+    .kv-cine__dialogue{position:relative;width:min(920px,100%);justify-self:center;padding:clamp(14px,2vw,22px) clamp(16px,3vw,32px) 14px;border:1px solid rgba(191,207,235,.24);border-left:3px solid var(--cine-hero,#8fe9ff);background:linear-gradient(105deg,rgba(5,8,17,.94),rgba(12,17,30,.78));box-shadow:0 18px 60px rgba(0,0,0,.3);}
+    .kv-cine__speaker{margin-bottom:6px;color:var(--cine-hero,#8fe9ff);font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .kv-cine__line{min-height:2.6em;color:#f5f6fb;font-size:clamp(15px,2.2vw,22px);line-height:1.32;font-weight:600;text-wrap:balance}
+    .kv-cine__foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);color:rgba(218,225,241,.7);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+    .kv-cine__objective{color:#d5e0f2;font-weight:800}.kv-cine__counter{white-space:nowrap;color:var(--cine-boss,#f23f55)}
+    .kv-cine__progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.08);overflow:hidden}.kv-cine__progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--cine-hero),var(--cine-boss));box-shadow:0 0 10px var(--cine-hero);transition:width .12s linear}
+    .kv-cine__skip{position:absolute;right:clamp(16px,4vw,52px);bottom:clamp(16px,3vh,32px);pointer-events:auto;display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid rgba(255,255,255,.25);background:rgba(5,8,16,.8);color:#fff;font:800 9px 'Chakra Petch',system-ui,sans-serif;letter-spacing:.12em;cursor:pointer}
+    .kv-cine__skip:hover,.kv-cine__skip:focus-visible{outline:2px solid var(--cine-hero);outline-offset:2px;background:rgba(18,24,39,.96)}.kv-cine__skip kbd{padding:2px 5px;border:1px solid rgba(255,255,255,.2);font:inherit;color:#b8c3d7}
+    .kv-cine[data-cine-beat="0"] .kv-cine__orb--boss{animation:kv-orb-threat 1.15s ease-in-out infinite}.kv-cine[data-cine-beat="1"] .kv-cine__actor--hero{animation:kv-hero-lunge .7s ease-out both}.kv-cine[data-cine-beat="2"] .kv-cine__beam{height:4px;filter:drop-shadow(0 0 18px var(--cine-boss));opacity:1}
+    @keyframes kv-cine-in{from{opacity:0}to{opacity:1}}@keyframes kv-orb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}@keyframes kv-beam-pulse{0%,100%{opacity:.38;transform:scaleX(.88)}50%{opacity:1;transform:scaleX(1)}}@keyframes kv-orb-threat{0%,100%{transform:scale(.96);filter:brightness(.9)}50%{transform:scale(1.08);filter:brightness(1.35)}}@keyframes kv-hero-lunge{0%{transform:translateY(-50%) translateX(-12px)}65%{transform:translateY(-50%) translateX(14px)}100%{transform:translateY(-50%) translateX(0)}}
+    @media(max-width:620px){.kv-cine__frame{gap:12px;padding:16px;padding-bottom:88px}.kv-cine__art{min-height:170px;max-height:35vh}.kv-cine__actor--hero{left:2px}.kv-cine__actor--boss{right:2px}.kv-cine__orb{width:clamp(86px,24vw,126px)}.kv-cine__actor{width:112px}.kv-cine__impact{font-size:7px;padding:6px 7px}.kv-cine__dialogue{padding:13px 14px 12px}.kv-cine__line{font-size:16px}.kv-cine__foot{font-size:8px}.kv-cine__difficulty{font-size:7px;padding:6px 7px}}
+    @media(max-height:560px){.kv-cine__frame{gap:6px;padding-top:10px;padding-bottom:60px}.kv-cine__header{padding-top:6px}.kv-cine__art{min-height:120px;max-height:34vh}.kv-cine__orb{width:clamp(72px,16vh,110px)}.kv-cine__dialogue{padding:10px 14px 10px}.kv-cine__line{min-height:1.6em;font-size:15px}.kv-cine__foot{margin-top:6px;padding-top:6px}}
+    @media(prefers-reduced-motion:reduce){.kv-cine--active,.kv-cine__orb,.kv-cine__beam,.kv-cine__actor--hero{animation:none!important}.kv-cine__progress span{transition:none}}
   `;
   document.head.appendChild(style);
 })();
-
 
 sp.createRoot(document.getElementById("root")).render(v.jsx(fe.StrictMode,{children:v.jsx(l2,{})}));
 </script>
