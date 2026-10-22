@@ -895,6 +895,27 @@ Error generating stack: `+l.message+`
       }
       c.restore();
     }
+    const activeShield = Math.max(
+      b.cosmicShieldT || 0,
+      b.artifactShieldT || 0,
+    );
+    if (activeShield > 0) {
+      c.save();
+      c.globalCompositeOperation = "lighter";
+      c.globalAlpha = 0.52 + Math.sin(this.time * 18) * 0.12;
+      c.strokeStyle = b.artifactShieldT > 0 ? "#ff6d72" : "#ffd23c";
+      c.lineWidth = 4.5;
+      c.beginPath();
+      c.arc(
+        0,
+        0,
+        visualRadius * (1.36 + Math.sin(this.time * 8) * 0.035),
+        0,
+        TAU,
+      );
+      c.stroke();
+      c.restore();
+    }
     c.globalAlpha = b.hitFlash > 0.25 ? 0.86 : 1;
     c.save();
     c.rotate(b.ang || 0);
@@ -2092,6 +2113,1466 @@ Error generating stack: `+l.message+`
         ],
       }),
     });
+  };
+
+
+  // HeroWave powers rebuilt around the supplied character briefs.
+  const heroPowerSpecs = {
+    mago: {
+      passiveName: "LONGEVIDADE MÍSTICA",
+      passiveDesc:
+        "A magia prolonga sua vitalidade: regenera 1 HP/s e fortalece a defesa contra ameaças arcanas.",
+      blurb:
+        "Stephen Strange combina longevidade mística, projeção astral, relíquias e feitiços defensivos.",
+      specials: [
+        Q(
+          "Z",
+          "PROJEÇÃO ASTRAL",
+          "PROJEÇÃO",
+          23,
+          "#d18cff",
+          "Projeta um duplo na mira; seu corpo fica intangível enquanto o espírito atordoa a área.",
+          "signature",
+          { move: "kv-mago-astral" },
+        ),
+        Q(
+          "X",
+          "RELÍQUIAS MÍSTICAS",
+          "RELÍQUIAS",
+          26,
+          "#ffd166",
+          "Invoca selos do Livro de Vishanti: escudo arcano, contra-feitiço e raios rúnicos.",
+          "signature",
+          { move: "kv-mago-reliquias" },
+        ),
+      ],
+    },
+    atirador: {
+      passiveName: "VONTADE INABALÁVEL",
+      passiveDesc:
+        "Treinamento e força de vontade reduzem hipnose e propaganda mental; recarrega o arsenal a cada onda.",
+      blurb:
+        "Frank Castle vence com precisão, armamento projetado para a missão e uma mente impossível de dobrar.",
+      specials: [
+        Q(
+          "Z",
+          "ORDENANÇA TÁTICA",
+          "ORDENANÇA",
+          20,
+          "#ff8a3d",
+          "Marca vários alvos e coordena uma salva de explosões de precisão.",
+          "signature",
+          { move: "kv-justiceiro-ordnance" },
+        ),
+        Q(
+          "X",
+          "FOCO DE FERRO",
+          "FOCO",
+          22,
+          "#f2f2f2",
+          "Ativa blindagem, disciplina de combate e resistência mental; devolve uma rajada perfurante.",
+          "signature",
+          { move: "kv-justiceiro-will" },
+        ),
+      ],
+    },
+    velocista: {
+      passiveName: "FORÇA DE ACELERAÇÃO",
+      passiveDesc:
+        "A velocidade alimenta seus golpes: roube o impulso dos inimigos e converta-o em cadência e movimento.",
+      blurb:
+        "Barry Allen combina socos de massa infinita, roubo de velocidade e ciclones da Força de Aceleração.",
+      specials: [
+        Q(
+          "Z",
+          "ROUBO DE VELOCIDADE",
+          "ROUBO",
+          20,
+          "#ffe14d",
+          "Drena o impulso de inimigos próximos, desacelera-os e acelera seus próprios ataques.",
+          "signature",
+          { move: "kv-flash-steal" },
+        ),
+        Q(
+          "X",
+          "CICLONE DA FORÇA",
+          "CICLONE",
+          24,
+          "#ff3b55",
+          "Gira num redemoinho supersônico que afasta hostis e dispersa projéteis.",
+          "signature",
+          { move: "kv-flash-cyclone" },
+        ),
+      ],
+    },
+    bruto: {
+      passiveName: "REGENERAÇÃO GAMA",
+      passiveDesc:
+        "A fisiologia gama regenera vida continuamente; sob pressão, a resistência e a força aumentam.",
+      blurb:
+        "O Hulk adapta-se ao dano, regenera-se, salta sobre a arena e transforma força em terremotos.",
+      specials: [
+        Q(
+          "Z",
+          "SALTO ESMAGADOR",
+          "SALTO",
+          18,
+          "#78df45",
+          "Salta até a mira e causa um impacto sísmico que atordoa e arremessa os inimigos.",
+          "signature",
+          { move: "kv-hulk-leap" },
+        ),
+        Q(
+          "X",
+          "ADAPTAÇÃO GAMA",
+          "ADAPTAÇÃO",
+          25,
+          "#a7e85b",
+          "A fúria fecha feridas, endurece a pele e amplia temporariamente sua força.",
+          "signature",
+          { move: "kv-hulk-adapt" },
+        ),
+      ],
+    },
+    robo: {
+      passiveName: "GÊNIO TECNOPATA",
+      passiveDesc:
+        "A IA prevê ameaças: sistemas Ultron sofrem mais dano e sua blindagem reduz a radiação tecnológica.",
+      blurb:
+        "Tony Stark une inteligência estratégica, tecnopatia, hackeamento de drones e o reator Arc.",
+      specials: [
+        Q(
+          "Z",
+          "INVASÃO DE SISTEMAS",
+          "HACKEAR",
+          22,
+          "#66d9ff",
+          "Invade drones inimigos e os reprograma como aliados; interrompe a rede de Ultron.",
+          "signature",
+          { move: "kv-ironman-hack" },
+        ),
+        Q(
+          "X",
+          "UNIFEIXE DO REATOR ARC",
+          "UNIFEIXE",
+          23,
+          "#ff5a66",
+          "Dispara um feixe concentrado e ergue um escudo de energia contra a radiação.",
+          "signature",
+          { move: "kv-ironman-unibeam" },
+        ),
+      ],
+    },
+    samurai: {
+      passiveName: "FATOR DE CURA CAÓTICO",
+      passiveDesc:
+        "Regenera-se lentamente e sua mente imprevisível resiste à hipnose e a ilusões.",
+      blurb:
+        "Deadpool combina fator de cura, quebra da quarta parede e uma bolsa mágica de armas improváveis.",
+      specials: [
+        Q(
+          "Z",
+          "QUEBRA DA QUARTA PAREDE",
+          "QUARTA PAREDE",
+          20,
+          "#ff3b55",
+          "Deadpool sabe que está num jogo: some do foco, fica intangível e ataca ao redor.",
+          "signature",
+          { move: "kv-deadpool-fourth-wall" },
+        ),
+        Q(
+          "X",
+          "BOLSA MÁGICA",
+          "BOLSA",
+          25,
+          "#ffd23c",
+          "Saca uma arma impossível: o efeito muda a cada uso entre cura, drones e explosões.",
+          "signature",
+          { move: "kv-deadpool-bag" },
+        ),
+      ],
+    },
+    engenheira: {
+      passiveName: "ARNESES DE NANOTECNOLOGIA",
+      passiveDesc:
+        "Os braços mecânicos atuam em paralelo; o revestimento nanométrico reduz a radiação de Ultron.",
+      blurb:
+        "Otto Octavius controla cada tentáculo de forma independente e converte os arneses em ciclones.",
+      specials: [
+        Q(
+          "Z",
+          "TENTÁCULOS AUTÔNOMOS",
+          "TENTÁCULOS",
+          19,
+          "#6ee07a",
+          "Os braços se estendem, puxam a horda e a atordoam com golpes coordenados.",
+          "signature",
+          { move: "kv-octopus-tentacles" },
+        ),
+        Q(
+          "X",
+          "CICLONE MECÂNICO",
+          "CICLONE",
+          24,
+          "#9eea7f",
+          "Os arneses giram como turbinas, sugando hostis para uma zona de nanitas.",
+          "signature",
+          { move: "kv-octopus-cyclone" },
+        ),
+      ],
+    },
+    oraculo: {
+      passiveName: "PREMONIÇÃO",
+      passiveDesc:
+        "Ravena antevê um golpe fatal e escapa dele uma vez por combate; sua magia também distorce o tempo.",
+      blurb:
+        "Ravena combina magia apocalíptica, controle temporal, projeção astral e visões do futuro.",
+      specials: [
+        Q(
+          "Z",
+          "TEMPO DE AZARATH",
+          "TEMPO",
+          23,
+          "#9e80ff",
+          "Distorce o fluxo temporal, parando hostis e projéteis enquanto você permanece livre.",
+          "signature",
+          { move: "kv-raven-time" },
+        ),
+        Q(
+          "X",
+          "VISÃO DO FUTURO",
+          "PREMONIÇÃO",
+          22,
+          "#d7c3ff",
+          "Prevê as posições inimigas, marca os alvos e faz golpes psíquicos atingirem onde estarão.",
+          "signature",
+          { move: "kv-raven-future" },
+        ),
+      ],
+    },
+    necromante: {
+      passiveName: "SABEDORIA ANCESTRAL",
+      passiveDesc:
+        "O legado de Wakanda fortalece o traje e reduz o impacto de feitiços e hipnose.",
+      blurb:
+        "T'Challa une conhecimento ancestral, deslocamento dimensional, agilidade e defesa de vibrânio.",
+      specials: [
+        Q(
+          "Z",
+          "PASSO DIMENSIONAL",
+          "PASSO",
+          18,
+          "#c1a3ff",
+          "Atravessa uma fenda, reaparece junto à mira e ataca com garras antes de sumir.",
+          "signature",
+          { move: "kv-panther-dimension" },
+        ),
+        Q(
+          "X",
+          "ESPÍRITO ANCESTRAL",
+          "ANCESTRAIS",
+          24,
+          "#ffd23c",
+          "Invoca a proteção dos ancestrais: cura, fortalece o traje e marca os inimigos.",
+          "signature",
+          { move: "kv-panther-ancestors" },
+        ),
+      ],
+    },
+    telepata: {
+      passiveName: "TELEPATIA ÔMEGA",
+      passiveDesc:
+        "A mente ômega desacelera hostis próximos e permite alterar matéria, ocultar-se e canalizar a Fênix.",
+      blurb:
+        "Jean Grey combina telepatia, telecinese, manipulação molecular, invisibilidade e a Fênix.",
+      specials: [
+        Q(
+          "Z",
+          "REMODELAGEM MOLECULAR",
+          "MOLÉCULAS",
+          21,
+          "#ff9d3d",
+          "Imobiliza e desorganiza moléculas na área, apaga projéteis e restaura sua energia vital.",
+          "signature",
+          { move: "kv-jean-molecular" },
+        ),
+        Q(
+          "X",
+          "CAMUFLAGEM TELEPÁTICA",
+          "INVISÍVEL",
+          22,
+          "#ff69c8",
+          "Apaga sua presença da mente dos inimigos e deixa uma projeção que os atrai.",
+          "signature",
+          { move: "kv-jean-invisibility" },
+        ),
+      ],
+    },
+    criomante: {
+      passiveName: "FORMA ORGÂNICA DE GELO",
+      passiveDesc:
+        "O corpo de gelo retarda os alvos; Bobby cria duplicatas congelantes e viaja por trilhas de água.",
+      blurb:
+        "Homem de Gelo domina o próprio corpo, congela inimigos por dentro, cria clones e desliza pela água.",
+      specials: [
+        Q(
+          "Z",
+          "DUPLICATAS GLACIAIS",
+          "DUPLICATAS",
+          22,
+          "#b8eeff",
+          "Cria clones de gelo que atraem hostis e disparam estilhaços enquanto você se reposiciona.",
+          "signature",
+          { move: "kv-iceman-clones" },
+        ),
+        Q(
+          "X",
+          "TELEPORTE AQUÁTICO",
+          "TELEPORTE",
+          18,
+          "#8edaff",
+          "Dissolve-se em água, cruza a trilha congelada e reaparece na mira.",
+          "signature",
+          { move: "kv-iceman-water" },
+        ),
+      ],
+    },
+  };
+
+  for (const [heroId, patch] of Object.entries(heroPowerSpecs)) {
+    const definition = Ua.find((hero) => hero.id === heroId),
+      runtimeClass = Ki.find((hero) => hero.id === heroId);
+    if (!definition || !runtimeClass) continue;
+    definition.passiveName = runtimeClass.passiveName = patch.passiveName;
+    definition.passiveDesc = runtimeClass.passiveDesc = patch.passiveDesc;
+    definition.blurb = runtimeClass.blurb = patch.blurb;
+    for (const replacement of patch.specials) {
+      const current = definition.specials.find(
+        (special) => special.key === replacement.key,
+      );
+      if (current) Object.assign(current, replacement);
+      else definition.specials.push(replacement);
+    }
+  }
+
+  const sentryDefinition = Ua.find((hero) => hero.id === "sentinela"),
+    sentryRuntime = Ki.find((hero) => hero.id === "sentinela");
+  if (sentryDefinition && sentryRuntime) {
+    sentryDefinition.passiveName = sentryRuntime.passiveName =
+      "RESSURREIÇÃO SOLAR";
+    sentryDefinition.passiveDesc = sentryRuntime.passiveDesc =
+      "Regenera vida, reduz dano, acalma hostis próximos e retorna automaticamente uma vez após um golpe fatal.";
+    sentryDefinition.blurb = sentryRuntime.blurb =
+      "Robert Reynolds controla energia e matéria em escala molecular: regenera, ressuscita e pode apagar alvos da arena.";
+    const erase = sentryDefinition.specials.find(
+      (special) => special.params?.move === "sentinel-pulse",
+    );
+    if (erase)
+      Object.assign(erase, {
+        name: "APAGAMENTO MOLECULAR",
+        short: "APAGAR",
+        desc: "Desfaz a matéria numa zona ampla, apaga projéteis e fere até o boss.",
+      });
+    const rebuild = sentryDefinition.specials.find(
+      (special) => special.params?.move === "sentinel-rebuild",
+    );
+    if (rebuild)
+      Object.assign(rebuild, {
+        name: "RECONSTRUÇÃO ATÔMICA",
+        short: "RECONSTRUIR",
+        desc: "Reconstrói o corpo, recupera vida e reinicia os poderes especiais.",
+      });
+  }
+
+  const bossPowerLabels = {
+    redskull: "LÍDER DA HIDRA · PROPAGANDA E TRANSFERÊNCIA MENTAL",
+    mysterio: "MESTRE DAS ILUSÕES · HOLOGRAMAS E HIPNOSE",
+    magneto: "DOMÍNIO MAGNÉTICO · MANIPULAÇÃO DO SANGUE",
+    ultron: "TECNOPATIA · RADIAÇÃO E LEGIÕES SINTÉTICAS",
+    thanos: "FEITIÇARIA CÓSMICA · ESCUDOS DA MANOPLA",
+    void: "AMEAÇA FINAL · CORRUPÇÃO E TENTÁCULOS DO ABISMO",
+  };
+  for (const bossList of [ir, sr])
+    for (const boss of bossList) {
+      const title = bossPowerLabels[boss.id];
+      if (title) boss.title = title;
+    }
+
+  const originalHeroSignaturePowers = fp.prototype.runHeroSignature;
+  fp.prototype.runHeroSignature = function (special) {
+    const move = String(special?.params?.move ?? "");
+    if (!move.startsWith("kv-"))
+      return originalHeroSignaturePowers.call(this, special);
+
+    const player = this.player,
+      color = special.color || this.cls.color || "#ffffff",
+      mul = this.powerMul(),
+      target = this.aimedPoint(820),
+      enemies = this.enemies.filter(
+        (enemy) => !enemy.dead && enemy.controlledT <= 0,
+      ),
+      inRadius = (x, y, radius) =>
+        enemies.filter((enemy) => he(enemy.x, enemy.y, x, y) <= radius ** 2),
+      ring = (x, y, radius, tint = color, width = 7) =>
+        this.ripples.push({
+          x,
+          y,
+          r: 14,
+          maxR: radius,
+          life: 0.58,
+          max: 0.58,
+          color: tint,
+          w: width,
+        }),
+      clearShots = (x, y, radius) => {
+        for (const bullet of this.eBullets)
+          bullet.on &&
+            he(bullet.x, bullet.y, x, y) < radius ** 2 &&
+            (bullet.on = false);
+      },
+      pop = (radius, damage, x = player.x, y = player.y, stun = 0) => {
+        for (const enemy of inRadius(x, y, radius)) {
+          if (stun > 0) enemy.stunT = Math.max(enemy.stunT, stun);
+          this.damageEnemy(enemy, damage * mul, true, x, y);
+        }
+        if (
+          this.boss &&
+          V(this.boss.x - x, this.boss.y - y) < radius + this.boss.r
+        )
+          this.damageBoss(this.boss, damage * mul * 1.15);
+        ring(x, y, radius);
+      };
+
+    switch (move) {
+      case "kv-mago-astral": {
+        this.invisT = Math.max(this.invisT, 2.4);
+        player.inv = Math.max(player.inv, 2.4);
+        this.decoyX = target.x;
+        this.decoyY = target.y;
+        this.decoyT = 2.6;
+        this.classFields.push({
+          kind: "psi",
+          x: target.x,
+          y: target.y,
+          r: 255,
+          life: 2.4,
+          max: 2.4,
+          tick: 0,
+          damage: 105 * mul,
+        });
+        for (const enemy of inRadius(target.x, target.y, 260))
+          enemy.stunT = Math.max(enemy.stunT, 1.2);
+        if (
+          this.boss &&
+          V(this.boss.x - target.x, this.boss.y - target.y) < 285
+        )
+          this.damageBoss(this.boss, 180 * mul);
+        ring(player.x, player.y, 90, "#d18cff", 5);
+        ring(target.x, target.y, 260, color, 8);
+        this.setBanner(
+          "PROJEÇÃO ASTRAL",
+          "O CORPO SOME · O ESPÍRITO ATACA",
+          color,
+          1.25,
+        );
+        break;
+      }
+      case "kv-mago-reliquias": {
+        this.shieldT = Math.max(this.shieldT, 5.5);
+        this.shieldReduce = 0.27;
+        this.parryT = Math.max(this.parryT, 1.4);
+        this.mindGuardT = Math.max(this.mindGuardT, 5.5);
+        clearShots(player.x, player.y, 440);
+        for (let i = -1; i <= 1; i++)
+          this.beams.push({
+            x: player.x,
+            y: player.y,
+            ang: player.ang + i * 0.29,
+            len: 1550,
+            w: 20,
+            tele: 0.16,
+            fire: 0.8,
+            color,
+            dmg: 95 * mul,
+            fromBoss: false,
+            spin: i * 0.18,
+          });
+        ring(player.x, player.y, 330, color, 9);
+        this.setBanner(
+          "RELÍQUIAS MÍSTICAS",
+          "ESCUDO E CONTRAFEITIÇO",
+          color,
+          1.1,
+        );
+        break;
+      }
+      case "kv-justiceiro-ordnance": {
+        const marks = this.rankTargets(7, 1050);
+        if (!marks.length && this.boss)
+          marks.push({ x: this.boss.x, y: this.boss.y });
+        for (let i = 0; i < Math.max(1, marks.length); i++) {
+          const point = marks[i] || target;
+          this.nukes.push({
+            x: point.x,
+            y: point.y,
+            t: 0.55 + i * 0.1,
+            r: 118,
+            dmg: 155 * mul,
+            color,
+          });
+        }
+        this.setBanner("ORDENANÇA TÁTICA", "ALVOS ADQUIRIDOS", color, 1.1);
+        q.bossWarn();
+        break;
+      }
+      case "kv-justiceiro-will": {
+        this.buffT = Math.max(this.buffT, 5.5);
+        this.buffDmg = Math.max(this.buffDmg, 1.28);
+        this.buffRate = Math.max(this.buffRate, 1.24);
+        this.buffArmor = Math.max(this.buffArmor, 2);
+        this.mindGuardT = Math.max(this.mindGuardT, 5.5);
+        this.parryT = Math.max(this.parryT, 1.15);
+        for (let i = -3; i <= 3; i++) {
+          const angle = player.ang + i * 0.095;
+          this.spawnPBullet(
+            player.x,
+            player.y,
+            Math.cos(angle) * 1820,
+            Math.sin(angle) * 1820,
+            48 * mul,
+            3,
+            1.1,
+            5,
+            this.classWeapons[0],
+            true,
+          );
+        }
+        this.setBanner(
+          "FOCO DE FERRO",
+          "MENTE E BLINDAGEM REFORÇADAS",
+          color,
+          1.2,
+        );
+        break;
+      }
+      case "kv-flash-steal": {
+        const drained = inRadius(player.x, player.y, 510);
+        for (const enemy of drained) {
+          enemy.chillT = Math.max(enemy.chillT, 2.8);
+          enemy.stunT = Math.max(enemy.stunT, 0.35);
+          this.damageEnemy(enemy, 55 * mul, true, player.x, player.y);
+        }
+        if (
+          this.boss &&
+          V(this.boss.x - player.x, this.boss.y - player.y) < 540
+        )
+          this.damageBoss(this.boss, 150 * mul);
+        this.buffT = Math.max(this.buffT, 4.8);
+        this.buffSpeed = Math.max(this.buffSpeed, 1.42);
+        this.buffRate = Math.max(this.buffRate, 1.35);
+        this.flashScreen("#fff5a5", 0.2);
+        ring(player.x, player.y, 510, color, 8);
+        this.setBanner(
+          "ROUBO DE VELOCIDADE",
+          "SEU IMPULSO · SUA VANTAGEM",
+          color,
+          1.15,
+        );
+        break;
+      }
+      case "kv-flash-cyclone": {
+        this.forcePulse(470, Math.PI, 105 * mul, 980, 1.2);
+        clearShots(player.x, player.y, 490);
+        for (let i = 0; i < 16; i++) {
+          const angle = (i / 16) * w + this.time * 0.5;
+          this.spawnPBullet(
+            player.x,
+            player.y,
+            Math.cos(angle) * 1080,
+            Math.sin(angle) * 1080,
+            35 * mul,
+            1,
+            0.9,
+            5,
+            this.classWeapons[0],
+            false,
+          );
+        }
+        this.shake = Math.max(this.shake, 9);
+        this.setBanner(
+          "CICLONE DA FORÇA",
+          "A ARENA GIRA AO SEU REDOR",
+          color,
+          1.1,
+        );
+        break;
+      }
+      case "kv-hulk-leap": {
+        const dx = target.x - player.x,
+          dy = target.y - player.y,
+          distance = Math.max(1, Math.hypot(dx, dy)),
+          travel = Math.min(590, distance),
+          fromX = player.x,
+          fromY = player.y;
+        player.x = G(
+          player.x + (dx / distance) * travel,
+          player.r + 18,
+          this.worldW - player.r - 18,
+        );
+        player.y = G(
+          player.y + (dy / distance) * travel,
+          player.r + 18,
+          this.worldH - player.r - 18,
+        );
+        player.inv = Math.max(player.inv, 0.8);
+        pop(245, 230, player.x, player.y, 1.25);
+        ring(fromX, fromY, 105, "#78df45", 5);
+        this.decals.push({
+          x: player.x,
+          y: player.y,
+          r: 155,
+          life: 3,
+          max: 3,
+          color,
+          rot: Math.random() * w,
+          kind: 1,
+        });
+        this.shake = Math.max(this.shake, 16);
+        q.explode();
+        this.setBanner("SALTO ESMAGADOR", "IMPACTO GAMA", color, 1.2);
+        break;
+      }
+      case "kv-hulk-adapt": {
+        this.rageT = Math.max(this.rageT, 7);
+        this.rageDmg = Math.max(this.rageDmg, 1.34);
+        this.rageArmor = Math.max(this.rageArmor, 4);
+        this.rageRegen = Math.max(this.rageRegen, 18);
+        player.hp = Math.min(player.maxHp, player.hp + 42);
+        pop(315, 118, player.x, player.y, 0.8);
+        this.flashScreen("#78df45", 0.23);
+        this.setBanner(
+          "ADAPTAÇÃO GAMA",
+          "A FÚRIA REPARA E FORTALECE",
+          color,
+          1.3,
+        );
+        break;
+      }
+      case "kv-ironman-hack": {
+        const machines = enemies
+          .filter((enemy) =>
+            ["drone", "turret", "shooter"].includes(enemy.kind),
+          )
+          .slice(0, 4);
+        for (const enemy of machines) {
+          enemy.controlledT = Math.max(enemy.controlledT, 6.5);
+          enemy.controlFireT = 0;
+          enemy.stunT = 0;
+          enemy.tele = 0;
+        }
+        if (!machines.length)
+          for (let i = 0; i < 3; i++)
+            this.drones.push({
+              a: (i / 3) * w,
+              d: 84,
+              t: 8,
+              cd: i * 0.08,
+              x: player.x,
+              y: player.y,
+              ang: 0,
+              color,
+              dmg: 48,
+            });
+        if (this.boss?.def?.id === "ultron") {
+          this.damageBoss(this.boss, 260 * mul);
+          this.boss.atkT = Math.max(this.boss.atkT, 0.85);
+        }
+        ring(player.x, player.y, 260, color, 6);
+        this.setBanner(
+          "INVASÃO DE SISTEMAS",
+          "DRONES REPROGRAMADOS",
+          color,
+          1.15,
+        );
+        break;
+      }
+      case "kv-ironman-unibeam": {
+        const angle = Math.atan2(target.y - player.y, target.x - player.x);
+        this.beams.push({
+          x: player.x,
+          y: player.y,
+          ang: angle,
+          len: 2350,
+          w: 42,
+          tele: 0.42,
+          fire: 1.1,
+          color,
+          dmg: 155 * mul,
+          fromBoss: false,
+          spin: 0,
+        });
+        this.shieldT = Math.max(this.shieldT, 3.2);
+        this.shieldReduce = 0.42;
+        this.classFields.push({
+          kind: "fire",
+          x: target.x,
+          y: target.y,
+          r: 175,
+          life: 2.6,
+          max: 2.6,
+          tick: 0,
+          damage: 42 * mul,
+        });
+        this.setBanner(
+          "UNIFEIXE DO REATOR ARC",
+          "FEIXE CONCENTRADO · ESCUDO ATIVO",
+          color,
+          1.1,
+        );
+        q.bossWarn();
+        break;
+      }
+      case "kv-deadpool-fourth-wall": {
+        this.invisT = Math.max(this.invisT, 2.25);
+        player.inv = Math.max(player.inv, 2.25);
+        this.timeStopT = Math.max(this.timeStopT, 0.85);
+        clearShots(player.x, player.y, 360);
+        pop(250, 145, player.x, player.y, 0.75);
+        this.setBanner(
+          "QUARTA PAREDE QUEBRADA",
+          "DEADPOOL ASSUME O CONTROLE",
+          color,
+          1.25,
+        );
+        break;
+      }
+      case "kv-deadpool-bag": {
+        const trick = Math.floor(Math.random() * 4);
+        if (trick === 0) {
+          for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * w + this.time;
+            this.nukes.push({
+              x: target.x + Math.cos(angle) * 130,
+              y: target.y + Math.sin(angle) * 130,
+              t: 0.55 + i * 0.08,
+              r: 112,
+              dmg: 145 * mul,
+              color,
+            });
+          }
+        } else if (trick === 1) {
+          player.hp = Math.min(player.maxHp, player.hp + 65);
+          this.shieldT = Math.max(this.shieldT, 3.2);
+          this.shieldReduce = 0.42;
+          this.ripples.push({
+            x: player.x,
+            y: player.y,
+            r: 12,
+            maxR: 240,
+            life: 0.6,
+            max: 0.6,
+            color,
+            w: 8,
+          });
+        } else if (trick === 2) {
+          for (let i = 0; i < 5; i++)
+            this.drones.push({
+              a: (i / 5) * w,
+              d: 95,
+              t: 8,
+              cd: i * 0.06,
+              x: player.x,
+              y: player.y,
+              ang: 0,
+              color,
+              dmg: 52,
+            });
+        } else {
+          this.buffT = Math.max(this.buffT, 4.2);
+          this.buffDmg = Math.max(this.buffDmg, 1.35);
+          this.buffRate = Math.max(this.buffRate, 1.3);
+          pop(330, 100, player.x, player.y, 0.65);
+        }
+        this.setBanner(
+          "BOLSA MÁGICA",
+          [
+            "FOGOS DE ARTIFÍCIO",
+            "KIT DE CURA",
+            "AMIGOS NOVOS",
+            "PODER DE PROTAGONISTA",
+          ][trick],
+          color,
+          1.3,
+        );
+        break;
+      }
+      case "kv-octopus-tentacles": {
+        for (const enemy of inRadius(player.x, player.y, 590)) {
+          const dx = player.x - enemy.x,
+            dy = player.y - enemy.y,
+            distance = Math.max(1, Math.hypot(dx, dy)),
+            pull = Math.min(190, Math.max(0, distance - 75));
+          enemy.x = G(enemy.x + (dx / distance) * pull, 24, this.worldW - 24);
+          enemy.y = G(enemy.y + (dy / distance) * pull, 24, this.worldH - 24);
+          enemy.stunT = Math.max(enemy.stunT, 1.25);
+          this.damageEnemy(enemy, 105 * mul, true, player.x, player.y);
+        }
+        if (
+          this.boss &&
+          V(this.boss.x - player.x, this.boss.y - player.y) < 620
+        )
+          this.damageBoss(this.boss, 270 * mul);
+        ring(player.x, player.y, 590, color, 8);
+        this.setBanner(
+          "TENTÁCULOS AUTÔNOMOS",
+          "QUATRO BRAÇOS · QUATRO ALVOS",
+          color,
+          1.1,
+        );
+        break;
+      }
+      case "kv-octopus-cyclone": {
+        this.classFields.push({
+          kind: "psi",
+          x: target.x,
+          y: target.y,
+          r: 275,
+          life: 3.2,
+          max: 3.2,
+          tick: 0,
+          damage: 78 * mul,
+        });
+        for (let i = 0; i < 12; i++) {
+          const angle = (i / 12) * w + this.time * 0.35;
+          this.spawnPBullet(
+            target.x,
+            target.y,
+            Math.cos(angle) * 940,
+            Math.sin(angle) * 940,
+            42 * mul,
+            2,
+            1.15,
+            7,
+            this.classWeapons[0],
+            false,
+          );
+        }
+        ring(target.x, target.y, 275, color, 8);
+        this.setBanner("CICLONE MECÂNICO", "NANITAS NO VÓRTICE", color, 1.15);
+        break;
+      }
+      case "kv-raven-time": {
+        this.timeStopT = Math.max(this.timeStopT, 2.6);
+        player.inv = Math.max(player.inv, 2.6);
+        clearShots(player.x, player.y, 760);
+        pop(410, 105, player.x, player.y, 2.2);
+        this.flashScreen("#5f399d", 0.24);
+        this.setBanner(
+          "TEMPO DE AZARATH",
+          "O MUNDO PARA · RAVENA NÃO",
+          color,
+          1.2,
+        );
+        break;
+      }
+      case "kv-raven-future": {
+        const marked = this.rankTargets(8, 1100);
+        for (let i = 0; i < marked.length; i++) {
+          const point = marked[i];
+          this.ripples.push({
+            x: point.x,
+            y: point.y,
+            r: 10,
+            maxR: 110,
+            life: 0.55,
+            max: 0.55,
+            color,
+            w: 5,
+          });
+          this.nukes.push({
+            x: point.x,
+            y: point.y,
+            t: 0.7 + i * 0.08,
+            r: 100,
+            dmg: 120 * mul,
+            color,
+          });
+        }
+        if (!marked.length) {
+          this.timeStopT = Math.max(this.timeStopT, 1.1);
+          player.hp = Math.min(player.maxHp, player.hp + 22);
+        }
+        this.setBanner(
+          "VISÃO DO FUTURO",
+          "OS GOLPES JÁ ESTÃO MARCADOS",
+          color,
+          1.15,
+        );
+        break;
+      }
+      case "kv-panther-dimension": {
+        const fromX = player.x,
+          fromY = player.y;
+        player.x = G(target.x, player.r + 18, this.worldW - player.r - 18);
+        player.y = G(target.y, player.r + 18, this.worldH - player.r - 18);
+        player.inv = Math.max(player.inv, 1.35);
+        this.invisT = Math.max(this.invisT, 1.1);
+        pop(210, 185, player.x, player.y, 0.55);
+        ring(fromX, fromY, 95, "#a06bff", 5);
+        this.setBanner(
+          "PASSO DIMENSIONAL",
+          "A PANTERA ATRAVESSA A FENDA",
+          color,
+          1.1,
+        );
+        break;
+      }
+      case "kv-panther-ancestors": {
+        this.shieldT = Math.max(this.shieldT, 5.4);
+        this.shieldReduce = 0.28;
+        this.parryT = Math.max(this.parryT, 1.5);
+        this.buffT = Math.max(this.buffT, 5.4);
+        this.buffDmg = Math.max(this.buffDmg, 1.28);
+        player.hp = Math.min(player.maxHp, player.hp + 48);
+        for (const enemy of enemies) enemy.markT = Math.max(enemy.markT, 4.5);
+        ring(player.x, player.y, 340, color, 9);
+        this.setBanner(
+          "ESPÍRITO ANCESTRAL",
+          "VIBRÂNIO E CURA WAKANDANA",
+          color,
+          1.25,
+        );
+        break;
+      }
+      case "kv-jean-molecular": {
+        const affected = inRadius(player.x, player.y, 500);
+        for (const enemy of affected) {
+          enemy.stunT = Math.max(enemy.stunT, 2.1);
+          enemy.chillT = Math.max(enemy.chillT, 2.1);
+          this.damageEnemy(enemy, 150 * mul, true, player.x, player.y);
+        }
+        clearShots(player.x, player.y, 500);
+        if (
+          this.boss &&
+          V(this.boss.x - player.x, this.boss.y - player.y) < 520
+        )
+          this.damageBoss(this.boss, 260 * mul);
+        player.hp = Math.min(
+          player.maxHp,
+          player.hp + Math.min(38, 10 + affected.length * 2),
+        );
+        ring(player.x, player.y, 500, color, 9);
+        this.setBanner(
+          "REMODELAGEM MOLECULAR",
+          "MATÉRIA IMOBILIZADA · TECIDOS REPARADOS",
+          color,
+          1.25,
+        );
+        break;
+      }
+      case "kv-jean-invisibility": {
+        this.invisT = Math.max(this.invisT, 4.2);
+        player.inv = Math.max(player.inv, 1.2);
+        this.decoyX = target.x;
+        this.decoyY = target.y;
+        this.decoyT = 4.2;
+        this.classFields.push({
+          kind: "psi",
+          x: target.x,
+          y: target.y,
+          r: 210,
+          life: 3.2,
+          max: 3.2,
+          tick: 0,
+          damage: 60 * mul,
+        });
+        ring(target.x, target.y, 210, color, 6);
+        this.setBanner(
+          "CAMUFLAGEM TELEPÁTICA",
+          "NENHUMA MENTE ENCONTRA JEAN",
+          color,
+          1.2,
+        );
+        break;
+      }
+      case "kv-iceman-clones": {
+        this.decoyX = target.x;
+        this.decoyY = target.y;
+        this.decoyT = 6;
+        for (const enemy of inRadius(target.x, target.y, 280))
+          enemy.chillT = Math.max(enemy.chillT, 2.6);
+        for (let i = 0; i < 4; i++)
+          this.drones.push({
+            a: (i / 4) * w,
+            d: 84,
+            t: 7,
+            cd: i * 0.12,
+            x: player.x,
+            y: player.y,
+            ang: 0,
+            color,
+            dmg: 43,
+          });
+        ring(target.x, target.y, 280, color, 7);
+        this.setBanner(
+          "DUPLICATAS GLACIAIS",
+          "OS CLONES COBREM SUA RETIRADA",
+          color,
+          1.15,
+        );
+        break;
+      }
+      case "kv-iceman-water": {
+        const fromX = player.x,
+          fromY = player.y,
+          dx = target.x - fromX,
+          dy = target.y - fromY;
+        for (let i = 1; i <= 5; i++)
+          this.classFields.push({
+            kind: "snow",
+            x: fromX + (dx * i) / 5,
+            y: fromY + (dy * i) / 5,
+            r: 78,
+            life: 2.5,
+            max: 2.5,
+            tick: 0,
+            damage: 30 * mul,
+          });
+        player.x = G(target.x, player.r + 18, this.worldW - player.r - 18);
+        player.y = G(target.y, player.r + 18, this.worldH - player.r - 18);
+        player.inv = Math.max(player.inv, 0.95);
+        for (const enemy of inRadius(player.x, player.y, 220)) {
+          enemy.chillT = Math.max(enemy.chillT, 3.4);
+          enemy.stunT = Math.max(enemy.stunT, 0.75);
+        }
+        ring(fromX, fromY, 90, "#b8eeff", 5);
+        ring(player.x, player.y, 220, color, 8);
+        this.setBanner(
+          "TELEPORTE AQUÁTICO",
+          "RASTRO DE GELO ATÉ A MIRA",
+          color,
+          1.1,
+        );
+        break;
+      }
+      default:
+        return originalHeroSignaturePowers.call(this, special);
+    }
+    this.toast(special.name, color);
+    return undefined;
+  };
+
+  const originalHeroPassivesPowerUpdate = fp.prototype.updatePassives;
+  fp.prototype.updatePassives = function (dt, ...args) {
+    const result = originalHeroPassivesPowerUpdate.call(this, dt, ...args),
+      player = this.player,
+      heroId = this.cls?.id;
+    if (!this.dlc || !player?.alive || this.status !== "playing") return result;
+
+    if (heroId === "mago")
+      player.hp = Math.min(player.maxHp, player.hp + 1 * dt);
+    else if (heroId === "bruto")
+      player.hp = Math.min(player.maxHp, player.hp + 1.15 * dt);
+    else if (heroId === "samurai")
+      player.hp = Math.min(player.maxHp, player.hp + 0.55 * dt);
+    else if (heroId === "sentinela") {
+      this.sentryAuraCd = Math.max(0, (this.sentryAuraCd || 0) - dt);
+      if (this.sentryAuraCd <= 0) {
+        this.sentryAuraCd = 0.82;
+        for (const enemy of this.enemies)
+          !enemy.dead &&
+            he(enemy.x, enemy.y, player.x, player.y) < 175 ** 2 &&
+            (enemy.stunT = Math.max(enemy.stunT, 0.22));
+      }
+    }
+    return result;
+  };
+
+  const originalHeroHurtPower = fp.prototype.hurtPlayer;
+  fp.prototype.hurtPlayer = function (amount, sourceX, sourceY, ...args) {
+    const player = this.player,
+      heroId = this.cls?.id,
+      bossId = this.boss?.def?.id,
+      validDamage = Number.isFinite(amount);
+    let adjusted = amount;
+    if (validDamage && this.dlc) {
+      if (heroId === "bruto" && player?.hp <= player?.maxHp * 0.5)
+        adjusted *= 0.78;
+      if (heroId === "mago" && ["mysterio", "thanos", "void"].includes(bossId))
+        adjusted *= 0.9;
+      if (bossId === "ultron" && (heroId === "robo" || heroId === "engenheira"))
+        adjusted *= 0.72;
+      if (
+        ["mysterio", "thanos", "void"].includes(bossId) &&
+        heroId === "necromante"
+      )
+        adjusted *= 0.82;
+    }
+
+    const canBeHit =
+      validDamage &&
+      this.dlc &&
+      player?.alive &&
+      player.inv <= 0 &&
+      this.invisT <= 0 &&
+      this.parryT <= 0 &&
+      this.status === "playing";
+    if (
+      canBeHit &&
+      heroId === "sentinela" &&
+      !this.trainingMode &&
+      !this.sentryReviveUsed
+    ) {
+      const armorFactor =
+          this.titanT > 0
+            ? 0.25
+            : this.shieldT > 0
+              ? 0.15
+              : 1 -
+                Math.min(
+                  0.75,
+                  (this.stats.armor + this.buffArmor + this.rageArmor) * 0.12,
+                ),
+        reduction = Math.min(
+          armorFactor,
+          this.mindGuardT > 0 ? 0.4 : 1,
+          this.jediGuardT > 0 ? 0.5 : 1,
+          this.cryoArmorT > 0 ? 0.35 : 1,
+          this.shieldT > 0 ? this.shieldReduce : 1,
+        ),
+        incoming = Math.max(1, adjusted * reduction * 0.52);
+      if (player.hp <= incoming) {
+        this.sentryReviveUsed = true;
+        player.hp = Math.max(player.hp, player.maxHp * 0.45);
+        player.alive = true;
+        player.inv = Math.max(player.inv, 2.5);
+        player.hurtT = 0;
+        player.safeT = 0;
+        player.vx = 0;
+        player.vy = 0;
+        for (const bullet of this.eBullets)
+          bullet.on &&
+            he(bullet.x, bullet.y, player.x, player.y) < 540 ** 2 &&
+            (bullet.on = false);
+        this.ripples.push({
+          x: player.x,
+          y: player.y,
+          r: 20,
+          maxR: 320,
+          life: 0.8,
+          max: 0.8,
+          color: "#fff0a8",
+          w: 13,
+        });
+        this.burst(player.x, player.y, "#fff0a8", 58, 520);
+        this.flashScreen("#fff0a8", 0.55);
+        this.setBanner(
+          "RESSURREIÇÃO SOLAR",
+          "O SENTRY RETORNA À VIDA",
+          "#fff0a8",
+          2.2,
+        );
+        this.shake = Math.max(this.shake, 18);
+        q.levelUp();
+        this.publish(true);
+        return undefined;
+      }
+    }
+
+    if (
+      canBeHit &&
+      heroId === "oraculo" &&
+      !this.trainingMode &&
+      !this.ravenPrecogUsed
+    ) {
+      const armorFactor =
+          this.titanT > 0
+            ? 0.25
+            : this.shieldT > 0
+              ? 0.15
+              : 1 -
+                Math.min(
+                  0.75,
+                  (this.stats.armor + this.buffArmor + this.rageArmor) * 0.12,
+                ),
+        reduction = Math.min(
+          armorFactor,
+          this.mindGuardT > 0 ? 0.4 : 1,
+          this.jediGuardT > 0 ? 0.5 : 1,
+          this.cryoArmorT > 0 ? 0.35 : 1,
+          this.shieldT > 0 ? this.shieldReduce : 1,
+        ),
+        incoming = Math.max(1, adjusted * reduction);
+      if (player.hp <= incoming) {
+        this.ravenPrecogUsed = true;
+        player.hp = Math.max(player.hp, player.maxHp * 0.28);
+        player.inv = Math.max(player.inv, 1.65);
+        const dx = player.x - (sourceX ?? player.x - 1),
+          dy = player.y - (sourceY ?? player.y),
+          distance = Math.max(1, Math.hypot(dx, dy));
+        player.x = G(
+          player.x + (dx / distance) * 105,
+          player.r + 18,
+          this.worldW - player.r - 18,
+        );
+        player.y = G(
+          player.y + (dy / distance) * 105,
+          player.r + 18,
+          this.worldH - player.r - 18,
+        );
+        this.ripples.push({
+          x: player.x,
+          y: player.y,
+          r: 12,
+          maxR: 210,
+          life: 0.65,
+          max: 0.65,
+          color: "#b69aff",
+          w: 8,
+        });
+        this.setBanner(
+          "PREMONIÇÃO",
+          "RAVENA JÁ TINHA VISTO ESSE GOLPE",
+          "#b69aff",
+          1.8,
+        );
+        this.flashScreen("#5a357d", 0.32);
+        this.publish(true);
+        return undefined;
+      }
+    }
+
+    return originalHeroHurtPower.call(
+      this,
+      adjusted,
+      sourceX,
+      sourceY,
+      ...args,
+    );
+  };
+
+  const originalHeroBossDamagePowers = fp.prototype.damageBoss;
+  fp.prototype.damageBoss = function (boss, amount, ...args) {
+    if (!boss || !Number.isFinite(amount))
+      return originalHeroBossDamagePowers.call(this, boss, amount, ...args);
+    let adjusted = amount;
+    if (this.dlc && this.cls?.id === "robo" && boss.def?.id === "ultron")
+      adjusted *= 1.16;
+    if (boss.cosmicShieldT > 0) adjusted *= 0.22;
+    if (boss.artifactShieldT > 0) adjusted *= 0.48;
+
+    if (
+      this.dlc &&
+      !this.trainingMode &&
+      boss.def?.id === "redskull" &&
+      !boss.mindTransferred &&
+      boss.hp > 0 &&
+      adjusted * (1 - (boss.def.resistance || 0)) >= boss.hp
+    ) {
+      boss.mindTransferred = true;
+      const resistance = boss.def.resistance || 0,
+        transferHp = Math.max(1, boss.maxHp * 0.34),
+        limitedDamage = Math.max(0, (boss.hp - transferHp) / (1 - resistance));
+      const result = originalHeroBossDamagePowers.call(
+        this,
+        boss,
+        limitedDamage,
+        ...args,
+      );
+      boss.hp = Math.max(boss.hp, transferHp);
+      boss.artifactShieldT = 2.1;
+      boss.tele = Math.max(boss.tele, 0.85);
+      boss.atkT = Math.max(boss.atkT, 1.2);
+      this.burst(boss.x, boss.y, "#e12c40", 38, 390);
+      this.ripples.push({
+        x: boss.x,
+        y: boss.y,
+        r: 18,
+        maxR: 245,
+        life: 0.72,
+        max: 0.72,
+        color: "#e12c40",
+        w: 10,
+      });
+      this.flashScreen("#e12c40", 0.35);
+      this.setBanner(
+        "TRANSFERÊNCIA MENTAL",
+        "A CAVEIRA VERMELHA ROUBOU OUTRA CHANCE",
+        "#e12c40",
+        2.2,
+      );
+      if (this.enemies.length < 36)
+        for (let i = 0; i < 2; i++) {
+          const angle = boss.spin + (i / 2) * w;
+          this.spawnEnemy(
+            i ? "shooter" : "drone",
+            G(boss.x + Math.cos(angle) * 115, 30, this.worldW - 30),
+            G(boss.y + Math.sin(angle) * 115, 30, this.worldH - 30),
+            false,
+            1.1,
+          );
+        }
+      return result;
+    }
+    return originalHeroBossDamagePowers.call(this, boss, adjusted, ...args);
+  };
+
+  const originalHeroBossAttacksPowers = fp.prototype.updateHeroBossAttack;
+  fp.prototype.updateHeroBossAttack = function (boss, dt, angle, distance) {
+    const handled = originalHeroBossAttacksPowers.call(
+      this,
+      boss,
+      dt,
+      angle,
+      distance,
+    );
+    if (!handled || !boss?.def?.id || !this.player) return handled;
+    const id = boss.def.id,
+      pattern = (boss.atk || 0) % 3,
+      player = this.player,
+      mentalResist =
+        this.cls?.id === "atirador"
+          ? 0.22
+          : this.cls?.id === "samurai"
+            ? 0.38
+            : this.cls?.id === "necromante"
+              ? 0.55
+              : 1;
+
+    if (id === "redskull" && pattern === 1) {
+      player.fireT = Math.max(player.fireT, 0.48 * mentalResist);
+      player.dashCd = Math.max(player.dashCd, 0.25 * mentalResist);
+      this.flashScreen("#e12c40", 0.16);
+      this.setBanner(
+        "PROPAGANDA DA HIDRA",
+        "INTERFERÊNCIA PSICOLÓGICA",
+        "#e12c40",
+        1,
+      );
+    } else if (id === "redskull" && pattern === 2) {
+      const count = boss.phase === 2 ? 4 : 2;
+      for (const recruit of this.enemies.slice(-count)) {
+        if (recruit.dead) continue;
+        recruit.hp *= 1.16;
+        recruit.maxHp *= 1.16;
+      }
+      this.setBanner(
+        "PROPAGANDA DA HIDRA",
+        "A REDE MOBILIZA MAIS RECRUTAS",
+        "#e12c40",
+        1.15,
+      );
+    } else if (id === "mysterio" && pattern === 2) {
+      this.decoyX = player.x + Math.cos(angle + 1.8) * 180;
+      this.decoyY = player.y + Math.sin(angle + 1.8) * 150;
+      this.decoyT = Math.max(this.decoyT, 1.8 * mentalResist);
+      player.fireT = Math.max(player.fireT, 0.62 * mentalResist);
+      player.dashCd = Math.max(player.dashCd, 0.32 * mentalResist);
+      this.flashScreen("#4fd9a0", 0.2);
+      this.setBanner(
+        "HIPNOSE DE MYSTÉRIO",
+        "A MIRA FALSA TENTA CONFUNDIR VOCÊ",
+        "#4fd9a0",
+        1.05,
+      );
+    } else if (id === "magneto" && pattern === 0 && distance < 650) {
+      this.hurtPlayer((boss.def.damage || 25) * 0.24, boss.x, boss.y);
+      this.flashScreen("#ba5267", 0.2);
+      this.setBanner(
+        "HEMOCINESE",
+        "MAGNETO ALTERA SUA PRESSÃO SANGUÍNEA",
+        "#ba5267",
+        0.95,
+      );
+    } else if (id === "ultron" && pattern === 2) {
+      this.hazards.push({
+        x: player.x,
+        y: player.y,
+        r: boss.phase === 2 ? 148 : 118,
+        life: 2.4,
+        max: 2.4,
+        dps: 12 + Math.min(10, this.wave * 0.35),
+        color: "#ff4658",
+        owner: "boss",
+        tick: 0,
+      });
+      this.setBanner(
+        "RADIAÇÃO DE ULTRON",
+        "SAIA DA ZONA DE CONTAMINAÇÃO",
+        "#ff4658",
+        1.05,
+      );
+    } else if (id === "thanos" && pattern === 0) {
+      boss.cosmicShieldT = boss.phase === 2 ? 1.8 : 1.45;
+      this.ripples.push({
+        x: boss.x,
+        y: boss.y,
+        r: boss.r + 10,
+        maxR: boss.r * 2.25,
+        life: 0.72,
+        max: 0.72,
+        color: "#ffd23c",
+        w: 10,
+      });
+      this.setBanner(
+        "ESCUDO MÍSTICO",
+        "A MANOPLA DESVIA PARTE DO DANO",
+        "#ffd23c",
+        1.1,
+      );
+    } else if (id === "void" && pattern === 2) {
+      const tentacleAngle = Math.atan2(player.y - boss.y, player.x - boss.x),
+        damage = (boss.def.damage || 68) * (boss.phase === 2 ? 0.48 : 0.38);
+      for (let side = -1; side <= 1; side += 2)
+        this.beams.push({
+          x: boss.x,
+          y: boss.y,
+          ang: tentacleAngle + side * 0.28,
+          len: 1320,
+          w: boss.phase === 2 ? 34 : 27,
+          tele: 0.82,
+          fire: 1.05,
+          color: "#9d7ae5",
+          dmg: damage,
+          fromBoss: true,
+          spin: side * 0.34,
+        });
+      this.voidTintT = Math.max(this.voidTintT || 0, 2.2);
+      this.voidTintMax = Math.max(this.voidTintMax || 0, this.voidTintT);
+      this.setBanner(
+        "TENTÁCULOS DO VAZIO",
+        "A CORRUPÇÃO ESTICA SEUS BRAÇOS",
+        "#9d7ae5",
+        1.15,
+      );
+      q.bossWarn();
+    }
+    return handled;
+  };
+
+  const originalHeroBossUpdatePowers = fp.prototype.updateBoss;
+  fp.prototype.updateBoss = function (dt, ...args) {
+    const boss = this.boss;
+    if (boss) {
+      boss.cosmicShieldT = Math.max(0, (boss.cosmicShieldT || 0) - dt);
+      boss.artifactShieldT = Math.max(0, (boss.artifactShieldT || 0) - dt);
+    }
+    return originalHeroBossUpdatePowers.call(this, dt, ...args);
+  };
+
+  const originalHeroRunResetPowers = fp.prototype.startRun;
+  fp.prototype.startRun = function (...args) {
+    this.sentryReviveUsed = false;
+    this.sentryAuraCd = 0;
+    this.ravenPrecogUsed = false;
+    return originalHeroRunResetPowers.apply(this, args);
+  };
+  const originalHeroTrainingResetPowers = fp.prototype.startTraining;
+  fp.prototype.startTraining = function (...args) {
+    this.sentryReviveUsed = false;
+    this.sentryAuraCd = 0;
+    this.ravenPrecogUsed = false;
+    return originalHeroTrainingResetPowers.apply(this, args);
   };
 })();
 sp.createRoot(document.getElementById("root")).render(v.jsx(fe.StrictMode,{children:v.jsx(l2,{})}));
