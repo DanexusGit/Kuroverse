@@ -96,6 +96,14 @@ Error generating stack: `+l.message+`
         telepata: { base: "#bd3843", light: "#ffad6c", dark: "#4a1b35", accent: "#ffd55a" },
         criomante: { base: "#91d9f0", light: "#f0ffff", dark: "#347797", accent: "#d9f7ff" },
         sentinela: { base: "#d9b547", light: "#fff0a1", dark: "#745826", accent: "#244879" },
+        homelander: { base: "#b92e43", light: "#ff9aa1", dark: "#481927", accent: "#ffe18a" },
+        atrain: { base: "#286bb5", light: "#8bdfff", dark: "#132947", accent: "#ee384d" },
+        thedeep: { base: "#176e89", light: "#7ce8dd", dark: "#0b2b3b", accent: "#54e4c8" },
+        starlight: { base: "#d5a331", light: "#fff3a2", dark: "#6e511e", accent: "#fff0c5" },
+        maeve: { base: "#823248", light: "#e78a94", dark: "#351624", accent: "#f0c978" },
+        blacknoir: { base: "#252b35", light: "#687483", dark: "#080b11", accent: "#d5dce5" },
+        butcher: { base: "#53603b", light: "#aab77a", dark: "#1c2118", accent: "#e85a4b" },
+        hughie: { base: "#477487", light: "#9cd7e7", dark: "#1b3345", accent: "#f0d388" },
       },
       palette = palettes[id] || palettes.mago,
       main = hurt ? "#ffffff" : palette.base,
@@ -105,6 +113,8 @@ Error generating stack: `+l.message+`
         sentinela: ["#18365f", "#6389bb"],
         telepata: ["#922c46", "#e04c4f"],
         oraculo: ["#281a3e", "#7754a4"],
+        homelander: ["#8e1d31", "#f4c85f"],
+        maeve: ["#552036", "#d9939c"],
       };
 
     const cape = capes[id];
@@ -686,6 +696,14 @@ Error generating stack: `+l.message+`
       telepata: "#ff8b42",
       criomante: "#8edaff",
       sentinela: "#d9b84f",
+      homelander: "#e85a68",
+      atrain: "#58b9ef",
+      thedeep: "#4ed7c9",
+      starlight: "#f3d46d",
+      maeve: "#d47784",
+      blacknoir: "#aab8c7",
+      butcher: "#df6656",
+      hughie: "#91c9dc",
     };
     const bossColors = {
       warden: "#bd3547",
@@ -723,6 +741,14 @@ Error generating stack: `+l.message+`
     ["JEANGREY", "telepata"],
     ["HOMEMDEGELO", "criomante"],
     ["SENTINELA", "sentinela"],
+    ["CAPITAOPATRIA", "homelander"],
+    ["TREMBALA", "atrain"],
+    ["OPROFUNDO", "thedeep"],
+    ["LUZESTRELA", "starlight"],
+    ["RAINHAMAEVE", "maeve"],
+    ["BLACKNOIR", "blacknoir"],
+    ["BILLYBRUTO", "butcher"],
+    ["HUGHIECAMPBELL", "hughie"],
   ];
   const bossCardNames = [
     ["GUARDIAO", "warden"],
@@ -1214,7 +1240,7 @@ Error generating stack: `+l.message+`
         const audio = document.createElement("audio");
         audio.src = src;
         audio.preload = "none";
-        audio.loop = false;
+        audio.loop = src === githubAudio.laser;
         audio.volume = 0.3;
         audio.addEventListener("error", () => {
           pool.failed = true;
@@ -1230,7 +1256,7 @@ Error generating stack: `+l.message+`
       explosion: makePool(githubAudio.explosion),
       glass: makePool(githubAudio.glass),
     };
-    const gaps = { light: 105, laser: 160, heavy: 230, explosion: 340, glass: 680 };
+    const gaps = { light: 105, heavy: 230, explosion: 340, glass: 680 };
     let enabled = q.enabled !== false,
       unlocked = false;
     return {
@@ -1269,7 +1295,7 @@ Error generating stack: `+l.message+`
         )
           return true;
         const now = performance.now();
-        if (now - pool.last < (gaps[key] || 180)) return true;
+        if (key !== "laser" && now - pool.last < (gaps[key] || 180)) return true;
         pool.last = now;
         const audio =
           pool.list.find((a) => a.paused || a.ended) ||
@@ -1284,22 +1310,7 @@ Error generating stack: `+l.message+`
             if (err?.name !== "NotAllowedError" && err?.name !== "AbortError")
               pool.failed = true;
           };
-          if (key === "laser") {
-            const stopAfterOneShot = () => {
-              if (audio.paused || audio.ended) return;
-              if (pool.stopTimer) window.clearTimeout(pool.stopTimer);
-              pool.stopTimer = window.setTimeout(() => {
-                pool.stopTimer = 0;
-                try {
-                  audio.pause();
-                  audio.currentTime = 0;
-                } catch {}
-              }, 880);
-            };
-            if (promise && typeof promise.then === "function")
-              promise.then(stopAfterOneShot).catch(onPlayError);
-            else stopAfterOneShot();
-          } else if (promise && typeof promise.catch === "function")
+          if (promise && typeof promise.catch === "function")
             promise.catch(onPlayError);
           return true;
         } catch {
@@ -1699,7 +1710,7 @@ Error generating stack: `+l.message+`
     return true;
   };
   q.shot = function (kind) {
-    if (laserBeamContext && (kind === "tesla" || kind === "rail")) return;
+    if (laserBeamContext && ["tesla", "rail", "laser"].includes(kind)) return;
     const sound =
       kind === "rocket" ? "heavy" : kind === "laser" ? "laser" : "light";
     const volume = kind === "rocket" ? 0.5 : kind === "laser" ? 0.4 : 0.31;
@@ -1711,7 +1722,9 @@ Error generating stack: `+l.message+`
   if (typeof fp.prototype.fireBeam === "function") {
     const originalFireBeam = fp.prototype.fireBeam;
     fp.prototype.fireBeam = function (...args) {
-      const usesHostedLaser = ["robo", "sentinela"].includes(this.cls?.id);
+      const weapon = this.classWeapons?.[this.weaponIdx];
+      const usesHostedLaser =
+        weapon?.kind === "beam" || ["robo", "sentinela"].includes(this.cls?.id);
       if (!usesHostedLaser) return originalFireBeam.apply(this, args);
 
       let result;
@@ -3788,6 +3801,57 @@ Error generating stack: `+l.message+`
           poly(ctx, [[0, -9], [7, -6], [6, 4], [0, 9], [-6, 4], [-7, -6]], "rgba(30,58,101,.84)", tint, 1.05);
           line(ctx, [[4, -5], [1, -7], [-4, -6], [-5, -3], [-2, -1], [3, 0], [5, 2], [3, 5], [0, 6], [-4, 5]], "#ffe08a", 2.15);
           break;
+        case "homelander": {
+          poly(ctx, [[0, -8], [2.2, -2.7], [8, -2.2], [3.7, 1.2], [5.5, 7], [0, 3.7], [-5.5, 7], [-3.7, 1.2], [-8, -2.2], [-2.2, -2.7]], tintWithAlpha(tint, 0.38), tint, 1.1);
+          line(ctx, [[-7, -5], [-4, -4], [-1, -5], [2, -4], [5, -5], [8, -4]], white, 0.75);
+          break;
+        }
+        case "atrain":
+          poly(ctx, [[1, -9], [-6, 1], [-1, 1], [-4, 8], [7, -3], [2, -3]], tintWithAlpha(tint, 0.32), tint, 1);
+          line(ctx, [[-8, -5], [-5, -5]], white, 0.8);
+          line(ctx, [[-8, 5], [-5, 5]], white, 0.8);
+          break;
+        case "thedeep":
+          line(ctx, [[0, 8], [0, -7]], tint, 2);
+          line(ctx, [[-6, -2], [-6, -6], [-3, -4], [0, -8], [3, -4], [6, -6], [6, -2]], tint, 1.5);
+          line(ctx, [[-5, 1], [5, 1]], white, 1);
+          break;
+        case "starlight": {
+          for (let index = 0; index < 8; index++) {
+            const angle = (Math.PI * index) / 4;
+            line(ctx, [[Math.cos(angle) * 3, Math.sin(angle) * 3], [Math.cos(angle) * 8, Math.sin(angle) * 8]], index % 2 ? white : tint, 1.05);
+          }
+          sparkle(ctx, 0, 0, 3.1, tint);
+          break;
+        }
+        case "maeve":
+          poly(ctx, [[0, -8], [7, -5], [6, 3], [0, 8], [-6, 3], [-7, -5]], tintWithAlpha(tint, 0.34), tint, 1.1);
+          line(ctx, [[-3, -2], [0, -5], [3, -2], [2, 2], [0, 4], [-2, 2]], white, 0.9);
+          break;
+        case "blacknoir":
+          poly(ctx, [[-7, -4], [-4, -7], [4, -7], [7, -4], [6, 4], [0, 7], [-6, 4]], tintWithAlpha(tint, 0.26), tint, 1);
+          line(ctx, [[-5, -1], [5, -1]], white, 1.1);
+          line(ctx, [[-3, 2], [-2, 5]], tint, 0.8);
+          line(ctx, [[1, 2], [2, 5]], tint, 0.8);
+          break;
+        case "butcher":
+          line(ctx, [[-8, -3], [-3, -1], [0, -5], [3, -1], [8, -3]], tint, 1.8);
+          line(ctx, [[-6, 3], [-2, 1], [2, 1], [6, 3]], white, 1.1);
+          sparkle(ctx, 0, -1, 2.1, tint);
+          break;
+        case "hughie":
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 7.6, 4.2, -0.55, -0.25, Math.PI * 1.55);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 4.1, 7.6, 0.55, Math.PI * 0.72, Math.PI * 2.25);
+          ctx.strokeStyle = white;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          oval(ctx, 0, 0, 1.7, 1.7, tint, white, 0.6);
+          break;
       }
     }
 
@@ -3907,6 +3971,9 @@ Error generating stack: `+l.message+`
       bruto: "#9bdd5d", robo: "#ff7b61", samurai: "#ff8e84",
       engenheira: "#ffe580", oraculo: "#a97cf3", necromante: "#a67aff",
       telepata: "#ffad6c", criomante: "#c4f6ff", sentinela: "#ffd86b",
+      homelander: "#ff9aa1", atrain: "#8bdfff", thedeep: "#7ce8dd",
+      starlight: "#fff3a2", maeve: "#e78a94", blacknoir: "#d5dce5",
+      butcher: "#e85a4b", hughie: "#9cd7e7",
     }[id] || "#8fe9ff";
     addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint, id, false, time);
     return result;
@@ -7044,7 +7111,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(globalThis);
 
-/* Edge-triggered hosted laser SFX: one clip per press, never one per rendered beam frame. */
+/* Held-beam laser loop: one hosted clip per press, stopped on release. */
 (function registerLaserController(root) {
   function installLaserController(proto, sfxBank, soundEngine) {
     if (!proto || !sfxBank || proto.__kuroLaserControllerInstalled)
@@ -7053,6 +7120,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
 
     const baseShot = soundEngine?.shot?.bind(soundEngine) || (() => {});
     const basePlay = sfxBank.play.bind(sfxBank);
+    const activeLaserGames = new Set();
     sfxBank.play = function (key, ...args) {
       if (root.__nexusLaserSuppressHosted && key === "laser") return true;
       return basePlay(key, ...args);
@@ -7068,17 +7136,37 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     const baseQShot = soundEngine?.shot;
     if (soundEngine && typeof baseQShot === "function") {
       soundEngine.shot = function (kind, ...args) {
-        if (root.__nexusLaserSuppressHosted && ["rail", "tesla"].includes(kind))
+        if (root.__nexusLaserSuppressHosted && ["rail", "tesla", "laser"].includes(kind))
           return;
         return baseQShot.call(this, kind, ...args);
       };
     }
 
+    function laserInputHeld(game, releasedKey = "") {
+      if (game?.touchMode)
+        return !!(
+          game.autoFire ||
+          (game.stickAim?.active &&
+            (Math.abs(game.stickAim.dx || 0) > 0.2 ||
+              Math.abs(game.stickAim.dy || 0) > 0.2)) ||
+          (!game.stickAim?.active && game.cls?.id !== "robo")
+        );
+      return !!(game?.mouse?.down || (releasedKey !== "KeyJ" && game?.keys?.KeyJ));
+    }
+
     function stopLaser(game) {
+      const targets = game ? [game] : [...activeLaserGames];
+      for (const target of targets) {
+        if (target._nexusLaserSpecialTimer) {
+          root.clearTimeout(target._nexusLaserSpecialTimer);
+          target._nexusLaserSpecialTimer = 0;
+        }
+        target._nexusLaserBeamActive = false;
+        activeLaserGames.delete(target);
+      }
       try {
         sfxBank.stop?.("laser");
       } catch {}
-      if (game) game._nexusLaserBeamActive = false;
     }
 
     function playLaser(volume, fallback = true) {
@@ -7092,8 +7180,14 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     const previousFireBeam = proto.fireBeam;
     if (typeof previousFireBeam === "function") {
       proto.fireBeam = function (...args) {
-        const hostedBeam = ["robo", "sentinela"].includes(this.cls?.id);
+        const weapon = this.classWeapons?.[this.weaponIdx];
+        const hostedBeam =
+          weapon?.kind === "beam" || ["robo", "sentinela"].includes(this.cls?.id);
         if (!hostedBeam) return previousFireBeam.apply(this, args);
+        if (this._nexusLaserSpecialTimer) {
+          root.clearTimeout(this._nexusLaserSpecialTimer);
+          this._nexusLaserSpecialTimer = 0;
+        }
         const wasSuppressed = !!root.__nexusLaserSuppressHosted;
         root.__nexusLaserSuppressHosted = true;
         let result;
@@ -7104,6 +7198,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         }
         if (!this.demoActive && !this._nexusLaserBeamActive) {
           this._nexusLaserBeamActive = true;
+          activeLaserGames.add(this);
           playLaser(0.36);
         }
         return result;
@@ -7116,15 +7211,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         const result = previousUpdatePlayer.apply(this, args);
         if (!this._nexusLaserBeamActive) return result;
         const weapon = this.classWeapons?.[this.weaponIdx];
-        const held = this.touchMode
-          ? !!(
-              this.autoFire ||
-              (this.stickAim?.active &&
-                (Math.abs(this.stickAim.dx || 0) > 0.2 ||
-                  Math.abs(this.stickAim.dy || 0) > 0.2)) ||
-              (!this.stickAim?.active && this.cls?.id !== "robo")
-            )
-          : !!(this.mouse?.down || this.keys?.KeyJ);
+        const held = laserInputHeld(this);
         if (
           this.demoActive ||
           this.status !== "playing" ||
@@ -7158,6 +7245,11 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
         if (wasReady && !this.demoActive) {
           stopLaser(this);
           playLaser(0.42);
+          activeLaserGames.add(this);
+          this._nexusLaserSpecialTimer = root.setTimeout(() => {
+            this._nexusLaserSpecialTimer = 0;
+            if (!this._nexusLaserBeamActive) stopLaser(this);
+          }, 1100);
         }
         return result;
       };
@@ -7188,14 +7280,19 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
           typeof root.addEventListener === "function"
         ) {
           const game = this;
-          const release = () => {
-            if (!game.mouse?.down) stopLaser(game);
+          const release = (event) => {
+            if (event?.type === "keyup" && event.code === "KeyJ") {
+              if (!laserInputHeld(game, "KeyJ")) stopLaser(game);
+              return;
+            }
+            if (!laserInputHeld(game)) stopLaser(game);
           };
           const blur = () => stopLaser(game);
           this._nexusLaserReleaseHandler = release;
           this._nexusLaserBlurHandler = blur;
           root.addEventListener("pointerup", release);
           root.addEventListener("pointercancel", release);
+          root.addEventListener("keyup", release);
           root.addEventListener("blur", blur);
         }
         return result;
@@ -7215,6 +7312,7 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
             "pointercancel",
             this._nexusLaserReleaseHandler,
           );
+          root.removeEventListener("keyup", this._nexusLaserReleaseHandler);
           root.removeEventListener("blur", this._nexusLaserBlurHandler);
         }
         return previousDestroy.apply(this, args);
@@ -8790,6 +8888,518 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
   `;
   document.head.appendChild(style);
 })();
+
+/* THE BOYS — Arcade-only roster expansion. */
+(() => {
+  const BOYS_IDS = ["homelander", "atrain", "thedeep", "starlight", "maeve", "blacknoir", "butcher", "hughie"];
+  const boysIdSet = new Set(BOYS_IDS);
+  const boysHeroDefs = [
+    {
+      id: "homelander", name: "CAPITÃO PÁTRIA", title: "O LÍDER DOS SETE", alias: "Homelander",
+      role: "Visão de calor · voo · força", color: "#e54458", accent: "#ffe18a", emblem: "eagle",
+      hp: 155, speed: 1.04, dmg: 1.18, fireRate: 1.02, dashCd: 0.92, armor: 3, crit: 0.08,
+      weapons: [
+        { base: "beam", name: "VISÃO DE CALOR", code: "VH-7", color: "#ff5965", glow: "#d51c34", desc: "Raios oculares contínuos que varrem a arena.", dmg: 31, rate: 0.16 },
+        { base: "rail", name: "SOCO SUPERSÔNICO", code: "SP-9", color: "#ffe18a", glow: "#e84351", desc: "Um golpe de força bruta que atravessa alvos.", dmg: 88 },
+      ],
+      passiveName: "SUPREMACIA", passiveDesc: "Sua fisiologia superior regenera vida lentamente.",
+      specials: [
+        Q("E", "VOO SUPERSÔNICO", "VOO", 15, "#ff6572", "Alça voo, acelera e fortalece os ataques por 6 segundos.", "signature", { move: "boys-homelander-flight" }),
+        Q("F", "GRITO DE DOMINAÇÃO", "GRITO", 18, "#ff4358", "Uma onda de choque fere e atordoa inimigos próximos.", "signature", { move: "boys-homelander-shockwave" }),
+      ],
+      blurb: "O rosto da Vought: visão de calor, voo e força esmagadora.",
+    },
+    {
+      id: "atrain", name: "TREM-BALA", title: "O VELOCISTA DOS SETE", alias: "A-Train",
+      role: "Supervelocidade · impacto cinético", color: "#2778c8", accent: "#ff4053", emblem: "bolt",
+      hp: 112, speed: 1.32, dmg: 1.04, fireRate: 1.12, dashCd: 0.72, armor: 1, crit: 0.12,
+      weapons: [
+        { base: "needle", name: "RAJADA VELOZ", code: "AT-1", color: "#59d4ff", glow: "#2366df", desc: "Disparos rápidos para manter o ritmo da corrida.", dmg: 25, rate: 0.13, speed: 1580 },
+        { base: "rail", name: "GOLPE CINÉTICO", code: "AT-X", color: "#ff5963", glow: "#2c7ee1", desc: "Um impacto concentrado alimentado pela velocidade.", dmg: 76 },
+      ],
+      passiveName: "MOMENTUM", passiveDesc: "Em movimento, acelera a cadência e a velocidade.",
+      specials: [
+        Q("E", "ARRANCADA SUPERSÔNICA", "ARRANCADA", 8, "#51d7ff", "Avança até a mira e atravessa os alvos no caminho.", "signature", { move: "boys-atrain-sprint" }),
+        Q("F", "TREM DE IMPACTO", "IMPACTO", 14, "#ff5360", "Desfere uma sequência de golpes em alta velocidade.", "signature", { move: "boys-atrain-barrage" }),
+      ],
+      blurb: "Um velocista de elite: quanto mais se move, mais perigoso fica.",
+    },
+    {
+      id: "thedeep", name: "O PROFUNDO", title: "PROTETOR DOS OCEANOS", alias: "The Deep",
+      role: "Comunicação marinha · tridente", color: "#167fa0", accent: "#54e4c8", emblem: "trident",
+      hp: 125, speed: 1.03, dmg: 1.02, fireRate: 0.98, dashCd: 0.92, armor: 2, crit: 0.06,
+      weapons: [
+        { base: "needle", name: "TRIDENTE DE ATLANTIS", code: "DP-3", color: "#65e7d6", glow: "#13768c", desc: "Arremessos precisos com o tridente dos Sete.", dmg: 38, rate: 0.34, speed: 1260 },
+        { base: "tesla", name: "COMANDO MARINHO", code: "DP-A", color: "#50e5cf", glow: "#087eae", desc: "Uma descarga em cadeia guiada por criaturas marinhas.", dmg: 34, rate: 0.48 },
+      ],
+      passiveName: "RESPIRAÇÃO ANFÍBIA", passiveDesc: "Recupera vida devagar e resiste ao desgaste da arena.",
+      specials: [
+        Q("E", "ALIADOS DO OCEANO", "ALIADOS", 17, "#4de0c8", "Invoca quatro aliados marinhos que atacam por 8 segundos.", "signature", { move: "boys-deep-allies" }),
+        Q("F", "ONDA DE MARÉ", "MARÉ", 16, "#51cde8", "Uma onda atinge a área indicada, causando dano e atordoamento.", "signature", { move: "boys-deep-tidal-wave" }),
+      ],
+      blurb: "Comanda a vida marinha e luta com o tridente dos Sete.",
+    },
+    {
+      id: "starlight", name: "LUZ-ESTRELA", title: "A LUZ QUE A VOUGHT NÃO APAGA", alias: "Starlight",
+      role: "Energia luminosa · eletricidade", color: "#d7a932", accent: "#fff0a4", emblem: "star",
+      hp: 118, speed: 1.02, dmg: 1.1, fireRate: 1.04, dashCd: 0.9, armor: 2, crit: 0.08,
+      weapons: [
+        { base: "beam", name: "RAJADA LUMINOSA", code: "LS-1", color: "#fff0a4", glow: "#e7aa32", desc: "Um feixe de luz contínuo que perfura a linha de fogo.", dmg: 28, rate: 0.17 },
+        { base: "tesla", name: "PULSO ELÉTRICO", code: "LS-E", color: "#ffe888", glow: "#ffbb45", desc: "Energia elétrica salta de um alvo a outro.", dmg: 38, rate: 0.5 },
+      ],
+      passiveName: "LUZ INTERIOR", passiveDesc: "A energia acumulada concede um escudo periódico.",
+      specials: [
+        Q("E", "CLARÃO CEGANTE", "CLARÃO", 13, "#fff0a4", "Cega os inimigos próximos, limpa projéteis e forma um escudo.", "signature", { move: "boys-starlight-flash" }),
+        Q("F", "CANALIZAR ELETRICIDADE", "CANALIZAR", 15, "#ffd95e", "Libera três feixes luminosos em leque.", "signature", { move: "boys-starlight-fan" }),
+      ],
+      blurb: "Converte eletricidade em luz, rajadas e barreiras protetoras.",
+    },
+    {
+      id: "maeve", name: "RAINHA MAEVE", title: "A GUERREIRA DOS SETE", alias: "Queen Maeve",
+      role: "Força · resistência · combate corpo a corpo", color: "#8e344b", accent: "#f0c978", emblem: "shield",
+      hp: 150, speed: 1.01, dmg: 1.16, fireRate: 1, dashCd: 0.82, armor: 4, crit: 0.08,
+      weapons: [
+        { base: "katana", name: "LÂMINA DA RAINHA", code: "QM-1", color: "#f0c978", glow: "#8e344b", desc: "Cortes rápidos reforçados por força sobre-humana.", dmg: 42, rate: 0.29 },
+        { base: "rail", name: "SOCO DE AÇO", code: "QM-X", color: "#f4d79a", glow: "#c94e60", desc: "Um golpe pesado que rompe a guarda inimiga.", dmg: 96 },
+      ],
+      passiveName: "DURABILIDADE AMAZONA", passiveDesc: "Armadura elevada reduz o dano recebido.",
+      specials: [
+        Q("E", "GUARDA DA RAINHA", "CONTRA-ATAQUE", 13, "#f0c978", "Ergue a guarda, reduz dano e rebate projéteis próximos.", "signature", { move: "boys-maeve-parry" }),
+        Q("F", "INVESTIDA HEROICA", "INVESTIDA", 12, "#f07c83", "Avança com um golpe que atinge todos na trajetória.", "signature", { move: "boys-maeve-charge" }),
+      ],
+      blurb: "Uma combatente veterana, resistente e implacável no corpo a corpo.",
+    },
+    {
+      id: "blacknoir", name: "BLACK NOIR", title: "O ASSASSINO SILENCIOSO", alias: "Black Noir",
+      role: "Furtividade · lâminas · precisão", color: "#252b35", accent: "#d5dce5", emblem: "visor",
+      hp: 132, speed: 1.08, dmg: 1.1, fireRate: 1.05, dashCd: 0.8, armor: 3, crit: 0.23,
+      weapons: [
+        { base: "katana", name: "LÂMINAS SOMBRIAS", code: "BN-1", color: "#d7e0eb", glow: "#272d36", desc: "Cortes silenciosos com lâminas de combate.", dmg: 44, rate: 0.26 },
+        { base: "needle", name: "FACAS DE ARREMESSO", code: "BN-2", color: "#aab8c7", glow: "#424a56", desc: "Uma rajada precisa de facas perfurantes.", dmg: 34, rate: 0.25, speed: 1450 },
+      ],
+      passiveName: "ASSASSINO SILENCIOSO", passiveDesc: "O dash concede um breve desaparecimento da mira inimiga.",
+      specials: [
+        Q("E", "PASSO DAS SOMBRAS", "FURTIVIDADE", 14, "#c8d4e2", "Teleporta até a mira e fica invisível após o golpe.", "signature", { move: "boys-noir-shadow-step" }),
+        Q("F", "CHUVA DE LÂMINAS", "LÂMINAS", 12, "#aab8c7", "Arremessa cinco lâminas em leque na direção da mira.", "signature", { move: "boys-noir-blades" }),
+      ],
+      blurb: "Especialista em combate próximo, precisão e ataques furtivos.",
+    },
+    {
+      id: "butcher", name: "BILLY BRUTO", title: "LÍDER DOS THE BOYS", alias: "Billy Butcher",
+      role: "Temp V · arsenal · visão de calor", color: "#57633b", accent: "#e85a4b", emblem: "crosshair",
+      hp: 122, speed: 1.04, dmg: 1.14, fireRate: 1.02, dashCd: 0.9, armor: 2, crit: 0.14,
+      weapons: [
+        { base: "needle", name: "FUZIL TÁTICO", code: "BB-9", color: "#b5c783", glow: "#424d32", desc: "Rajadas táticas de médio alcance.", dmg: 32, rate: 0.22, speed: 1460 },
+        { base: "beam", name: "VISÃO DE CALOR V-24", code: "V24-H", color: "#ff6053", glow: "#992a28", desc: "Feixe ocular instável concedido pelo Composto V temporário.", dmg: 29, rate: 0.18 },
+      ],
+      passiveName: "COMPOSTO V TEMPORÁRIO", passiveDesc: "Quando está ferido, o V-24 aumenta o dano causado.",
+      specials: [
+        Q("E", "V-24: BRUTALIDADE", "TEMPESTADE", 17, "#e85a4b", "O Composto V reforça dano, armadura e regeneração por 7 segundos.", "signature", { move: "boys-butcher-temp-v" }),
+        Q("F", "VISÃO DE CALOR", "FEIXE V-24", 13, "#ff6255", "Dispara três feixes oculares em leque.", "signature", { move: "boys-butcher-laser" }),
+      ],
+      blurb: "Um líder humano disposto a usar o V-24 e qualquer arma contra os Supes.",
+    },
+    {
+      id: "hughie", name: "HUGHIE CAMPBELL", title: "O TELEPORTADOR DOS THE BOYS", alias: "Hughie Campbell",
+      role: "Teleporte · reposicionamento · suporte", color: "#507b91", accent: "#f0d388", emblem: "phase",
+      hp: 108, speed: 1.12, dmg: 1.02, fireRate: 1.04, dashCd: 0.66, armor: 1, crit: 0.07,
+      weapons: [
+        { base: "needle", name: "PISTOLA DE SERVIÇO", code: "HC-9", color: "#d6e1e7", glow: "#4e6e80", desc: "Disparos rápidos enquanto procura uma abertura.", dmg: 31, rate: 0.24, speed: 1400 },
+        { base: "tesla", name: "PULSO DE FASE", code: "HC-P", color: "#9eddf2", glow: "#557dba", desc: "Uma descarga curta que acompanha o reposicionamento.", dmg: 32, rate: 0.46 },
+      ],
+      passiveName: "ALVO DIFÍCIL", passiveDesc: "Seu dash recarrega mais depressa e evita o perigo.",
+      specials: [
+        Q("E", "TELEPORTE", "REPOSICIONAR", 9, "#9eddf2", "Salta até a mira, deixando um pulso nos pontos de saída e chegada.", "signature", { move: "boys-hughie-teleport" }),
+        Q("F", "FASE DE EMERGÊNCIA", "FASE", 16, "#c2e7f4", "Some por um instante, limpa projéteis e atordoa inimigos próximos.", "signature", { move: "boys-hughie-phase" }),
+      ],
+      blurb: "Ganha mobilidade de teleporte e usa o reposicionamento para sobreviver.",
+    },
+  ];
+
+  for (const hero of boysHeroDefs) {
+    if (!Ua.some((existing) => existing.id === hero.id)) Ua.push(hero);
+    if (!Ki.some((existing) => existing.id === hero.id)) Ki.push(xn(hero.id));
+  }
+  const allDlcClasses = Ki.slice();
+  const boysRuntimeClasses = allDlcClasses.filter((hero) => boysIdSet.has(hero.id));
+  const heroWaveRuntimeClasses = allDlcClasses.filter((hero) => !boysIdSet.has(hero.id));
+  const validEditions = new Set(["base", "herowave", "theboys"]);
+  const expansionLabel = { base: "BASE", herowave: "HERO WAVE", theboys: "THE BOYS" };
+
+  function applyEdition(edition) {
+    const roster = edition === "theboys" ? boysRuntimeClasses : heroWaveRuntimeClasses;
+    Ki.splice(0, Ki.length, ...roster);
+    window.__kuroExpansion = edition;
+    document.title = edition === "theboys"
+      ? "The Boys — Modo Arcade · Kuroverse"
+      : "O Colapso do Nexus — Campanha dos Heróis";
+    window.__kuroTheBoys = Object.freeze({ active: edition === "theboys", heroIds: BOYS_IDS.slice(), arcadeOnly: true });
+  }
+
+  const readOptionsBeforeExpansion = ar;
+  ar = function (...args) {
+    const options = readOptionsBeforeExpansion(...args);
+    const edition = validEditions.has(options.expansion)
+      ? options.expansion
+      : options.dlc ? "herowave" : "base";
+    options.expansion = edition;
+    options.dlc = edition !== "base";
+    applyEdition(edition);
+    return options;
+  };
+
+  function selectEdition(edition) {
+    if (!validEditions.has(edition)) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem(Sd) || "{}");
+      localStorage.setItem(Sd, JSON.stringify({
+        muted: false, lowFx: false, dmgFlash: true, ...stored,
+        dlc: edition !== "base", expansion: edition,
+      }));
+      localStorage.setItem("kuroverse-nexus-campaign-default-v1", "1");
+    } catch {}
+    applyEdition(edition);
+    window.location.reload();
+  }
+  window.__kuroSelectEdition = selectEdition;
+  const initialOptions = ar();
+  applyEdition(initialOptions.expansion);
+
+  const originalOptionsRow = gn;
+  gn = function (props) {
+    if (props.label !== "Versão do jogo (DLC HeroWave)") return originalOptionsRow(props);
+    const current = validEditions.has(window.__kuroExpansion)
+      ? window.__kuroExpansion
+      : props.value === "HEROWAVE" ? "herowave" : "base";
+    const next = current === "base" ? "herowave" : current === "herowave" ? "theboys" : "base";
+    return originalOptionsRow({
+      ...props,
+      label: "Edição / expansão",
+      value: expansionLabel[current],
+      onToggle: () => selectEdition(next),
+    });
+  };
+
+  const textOnlyExpansionMap = (node, replacements) => {
+    if (Array.isArray(node)) return node.map((child) => textOnlyExpansionMap(child, replacements));
+    if (typeof node === "string") return replacements[node] ?? node;
+    if (!node || typeof node !== "object" || !node.props) return node;
+    const props = { ...node.props };
+    if (Object.prototype.hasOwnProperty.call(props, "children")) props.children = textOnlyExpansionMap(props.children, replacements);
+    return { ...node, props };
+  };
+  const originalOptionsScreen = $p;
+  $p = function (props) {
+    const tree = originalOptionsScreen(props);
+    if (window.__kuroExpansion !== "theboys") return tree;
+    return textOnlyExpansionMap(tree, { "HEROWAVE ATIVO": "THE BOYS · ATIVO", "VERSÃO BASE": "EDIÇÃO BASE" });
+  };
+
+  const readReactText = (node) => {
+    if (typeof node === "string" || typeof node === "number") return String(node);
+    if (Array.isArray(node)) return node.map(readReactText).join(" ");
+    if (node && typeof node === "object" && node.props) return readReactText(node.props.children);
+    return "";
+  };
+  const rewriteMenuTextForBoys = (node) => {
+    if (Array.isArray(node)) return node.map(rewriteMenuTextForBoys);
+    if (typeof node !== "string") return node;
+    const replacements = {
+      "O COLAPSO": "THE",
+      "DO NEXUS": "BOYS",
+      "PACTO DA FENDA · CAMPANHA": "VOUGHT · THE BOYS DLC",
+      "6 CHEFES · 12 HERÓIS · 1 DESTINO": "8 PERSONAGENS · ARCADE · SEM HISTÓRIA",
+      "O PACTO DA FENDA // A CAMPANHA DESPERTA": "VOUGHT // ELENCO EM CAMPO",
+      "O COLAPSO DO NEXUS // SINCRONIZAÇÃO": "THE BOYS // MODO ARCADE",
+    };
+    return replacements[node] ?? node;
+  };
+  const makeBoysMenuButton = (onClick) => v.jsxs("button", {
+    type: "button", onClick,
+    className: "kv-boys-menu-button flex min-h-[48px] items-center justify-center gap-2 rounded border border-[#e95465]/45 bg-[#e95465]/[.09] px-3 py-3 font-display text-sm font-bold italic tracking-[.08em] text-[#ff7886] transition hover:border-[#ff7886]/75 hover:bg-[#e95465]/[.17] press",
+    children: [v.jsx(An, { size: 17 }), " THE BOYS · DLC"],
+  });
+  const makeBoysReturnButton = (onClick) => v.jsxs("button", {
+    type: "button", onClick,
+    className: "kv-boys-return-button flex min-h-[48px] items-center justify-center gap-2 rounded border border-[#8fe9ff]/35 bg-[#8fe9ff]/[.06] px-3 py-3 font-display text-sm font-bold italic tracking-[.08em] text-[#a8efff] transition hover:border-[#8fe9ff]/70 hover:bg-[#8fe9ff]/[.13] press",
+    children: [v.jsx(rr, { size: 15 }), " VOLTAR AO NEXUS"],
+  });
+  const originalBoysAwareMenu = Kp;
+  Kp = function (props) {
+    const tree = originalBoysAwareMenu(props);
+    const boysMode = window.__kuroExpansion === "theboys";
+    const transform = (node) => {
+      if (Array.isArray(node)) return node.map(transform).filter((child) => child != null);
+      if (!node || typeof node !== "object" || !node.props) return node;
+      const nextProps = { ...node.props };
+      const className = String(nextProps.className || "");
+      if (boysMode && node.type === "button" && className.includes("kv-story-menu-button")) return null;
+      if (Object.prototype.hasOwnProperty.call(nextProps, "children")) nextProps.children = transform(nextProps.children);
+      if (boysMode) nextProps.children = rewriteMenuTextForBoys(nextProps.children);
+      if (boysMode && node.type === "button" && className.includes("kv-arcade-menu-button")) {
+        nextProps.className = `${className} kv-boys-play-button border-[#e95465]/55 bg-[#e95465]/20 text-white hover:bg-[#e95465]/30`;
+        nextProps.children = textOnlyExpansionMap(nextProps.children, { " ARCADE · ONDAS": " JOGAR THE BOYS" });
+      }
+      if (node.type === "nav" && className.includes("kv-mode-nav")) {
+        const children = Array.isArray(nextProps.children) ? [...nextProps.children] : [nextProps.children];
+        if (boysMode) {
+          const available = children.filter((child) => {
+            const childClass = String(child?.props?.className || "");
+            const label = readReactText(child?.props?.children || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            return !childClass.includes("kv-story-menu-button") && !label.includes("MODO HISTORIA");
+          });
+          if (!available.some((child) => String(child?.props?.className || "").includes("kv-boys-return-button")))
+            available.push(makeBoysReturnButton(() => selectEdition("herowave")));
+          nextProps.children = available;
+          nextProps.className = "kv-mode-nav mt-7 grid grid-cols-2 gap-2.5 sm:mt-14 sm:grid-cols-1";
+        } else {
+          const exists = children.some((child) => String(child?.props?.className || "").includes("kv-boys-menu-button"));
+          if (!exists) children.splice(Math.min(2, children.length), 0, makeBoysMenuButton(() => selectEdition("theboys")));
+          nextProps.children = children;
+        }
+      }
+      return { ...node, props: nextProps };
+    };
+    return transform(tree);
+  };
+  const boysMenuStyle = document.createElement("style");
+  boysMenuStyle.textContent = `
+    .kv-boys-play-button{box-shadow:inset 0 0 24px rgba(233,84,101,.1),0 0 20px rgba(233,84,101,.08)}
+    .kv-boys-menu-button,.kv-boys-return-button{min-width:0;text-align:center}
+    @media(max-width:420px){.kv-mode-nav{gap:.45rem}.kv-mode-nav button{font-size:.72rem;letter-spacing:.04em}}
+  `;
+  document.head.appendChild(boysMenuStyle);
+
+  const boysPulse = (game, x, y, radius, damage, color, stun = 0, clearShots = false) => {
+    const scaledDamage = damage * (game.powerMul?.() || 1);
+    for (const enemy of game.enemies || []) {
+      if (enemy.dead || Math.hypot(enemy.x - x, enemy.y - y) > radius + (enemy.r || 0)) continue;
+      game.damageEnemy(enemy, scaledDamage, true, x, y);
+      if (stun > 0) enemy.stunT = Math.max(enemy.stunT || 0, stun);
+    }
+    const boss = game.boss;
+    if (boss && !boss.dead && Math.hypot(boss.x - x, boss.y - y) <= radius + (boss.r || 0))
+      game.damageBoss(boss, scaledDamage * 1.35);
+    if (clearShots)
+      for (const bullet of game.eBullets || [])
+        if (bullet.on && Math.hypot(bullet.x - x, bullet.y - y) <= radius) bullet.on = false;
+    game.ripples.push({ x, y, r: 14, maxR: radius, life: 0.55, max: 0.55, color, w: 7 });
+    game.burst(x, y, color, 20, Math.min(430, radius * 1.2));
+    game.shake = Math.max(game.shake || 0, Math.min(14, radius / 26));
+  };
+  const boysAim = (game, range = 680) => {
+    const p = game.player;
+    const point = game.aimedPoint?.(range);
+    if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) return point;
+    const angle = p.ang || 0;
+    return { x: p.x + Math.cos(angle) * range, y: p.y + Math.sin(angle) * range };
+  };
+  const boysSegmentHit = (game, x1, y1, x2, y2, width, damage, color, stun = 0) => {
+    const dx = x2 - x1, dy = y2 - y1, lengthSq = dx * dx + dy * dy || 1;
+    const hit = (target) => {
+      const t = Math.max(0, Math.min(1, ((target.x - x1) * dx + (target.y - y1) * dy) / lengthSq));
+      return Math.hypot(target.x - (x1 + dx * t), target.y - (y1 + dy * t)) <= width + (target.r || 0);
+    };
+    const amount = damage * (game.powerMul?.() || 1);
+    for (const enemy of game.enemies || []) {
+      if (enemy.dead || !hit(enemy)) continue;
+      game.damageEnemy(enemy, amount, true, x1, y1);
+      if (stun > 0) enemy.stunT = Math.max(enemy.stunT || 0, stun);
+    }
+    if (game.boss && !game.boss.dead && hit(game.boss)) game.damageBoss(game.boss, amount * 1.35);
+    game.beams.push({ x: x1, y: y1, ang: Math.atan2(dy, dx), len: Math.sqrt(lengthSq), w: width * 1.45, tele: 0.06, fire: 0.32, color, dmg: 0, fromBoss: false, spin: 0 });
+  };
+  const boysRay = (game, angle, length, width, damage, color, duration = 0.82) => {
+    const p = game.player;
+    const dx = Math.cos(angle), dy = Math.sin(angle);
+    const hitsRay = (target) => {
+      const along = (target.x - p.x) * dx + (target.y - p.y) * dy;
+      if (along < 0 || along > length) return false;
+      const nearestX = p.x + dx * along;
+      const nearestY = p.y + dy * along;
+      return Math.hypot(target.x - nearestX, target.y - nearestY) <= width * 0.5 + (target.r || 0);
+    };
+    const scaledDamage = damage * (game.powerMul?.() || 1);
+    for (const enemy of game.enemies || [])
+      if (!enemy.dead && hitsRay(enemy)) game.damageEnemy(enemy, scaledDamage, true, p.x, p.y);
+    if (game.boss && !game.boss.dead && hitsRay(game.boss)) game.damageBoss(game.boss, scaledDamage * 1.35);
+    game.beams.push({ x: p.x, y: p.y, ang: angle, len: length, w: width, tele: 0.12, fire: duration, color, dmg: 0, fromBoss: false, spin: 0 });
+  };
+  const boysMoveHandlers = {
+    "boys-homelander-flight": (game) => {
+      const p = game.player;
+      game.buffT = 6; game.buffDmg = 1.28; game.buffSpeed = 1.3; game.buffRate = 1.12; game.buffBeam = 1.3; game.buffFly = true;
+      game.flightT = Math.max(game.flightT || 0, 6); p.inv = Math.max(p.inv || 0, 0.75);
+      game.ripples.push({ x: p.x, y: p.y, r: 14, maxR: 150, life: 0.5, max: 0.5, color: "#ff6572", w: 5 });
+      game.burst(p.x, p.y, "#ff6572", 22, 300); game.setBanner("VOO SUPERSÔNICO", "VISÃO DE CALOR POTENCIALIZADA", "#ff6572", 1.5);
+    },
+    "boys-homelander-shockwave": (game) => {
+      const p = game.player; boysPulse(game, p.x, p.y, 350, 128, "#ff5265", 1.1, true);
+      game.flashScreen("#ff6470", 0.22); game.setBanner("GRITO DE DOMINAÇÃO", "ONDA DE CHOQUE", "#ff5265", 1.2);
+    },
+    "boys-atrain-sprint": (game) => {
+      const p = game.player, startX = p.x, startY = p.y, aim = boysAim(game, 650);
+      const dx = aim.x - startX, dy = aim.y - startY, length = Math.hypot(dx, dy) || 1, travel = Math.min(570, length);
+      const endX = Math.max(p.r + 18, Math.min(game.worldW - p.r - 18, startX + dx / length * travel));
+      const endY = Math.max(p.r + 18, Math.min(game.worldH - p.r - 18, startY + dy / length * travel));
+      boysSegmentHit(game, startX, startY, endX, endY, 58, 138, "#54d8ff", 0.45);
+      p.x = endX; p.y = endY; p.inv = Math.max(p.inv || 0, 0.95);
+      game.ripples.push({ x: startX, y: startY, r: 9, maxR: 95, life: 0.33, max: 0.33, color: "#54d8ff", w: 4 });
+      game.ripples.push({ x: endX, y: endY, r: 15, maxR: 180, life: 0.45, max: 0.45, color: "#54d8ff", w: 6 });
+      game.burst(endX, endY, "#54d8ff", 22, 360); game.updateCamera?.(1);
+      game.setBanner("ARRANCADA SUPERSÔNICA", "ALVOS ATINGIDOS NA TRAJETÓRIA", "#54d8ff", 1.1);
+    },
+    "boys-atrain-barrage": (game) => {
+      const p = game.player;
+      const targets = (game.enemies || []).filter((enemy) => !enemy.dead && Math.hypot(enemy.x - p.x, enemy.y - p.y) < 390)
+        .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
+      targets.slice(0, 8).forEach((enemy, index) => {
+        game.damageEnemy(enemy, 52 * (game.powerMul?.() || 1), true, p.x, p.y);
+        enemy.stunT = Math.max(enemy.stunT || 0, 0.18);
+        if (index < 4) game.burst(enemy.x, enemy.y, "#54d8ff", 7, 155);
+      });
+      if (game.boss && !game.boss.dead && Math.hypot(game.boss.x - p.x, game.boss.y - p.y) < 420) game.damageBoss(game.boss, 150 * (game.powerMul?.() || 1));
+      p.inv = Math.max(p.inv || 0, 0.65);
+      game.ripples.push({ x: p.x, y: p.y, r: 12, maxR: 220, life: 0.45, max: 0.45, color: "#54d8ff", w: 5 });
+      game.setBanner("TREM DE IMPACTO", "COMBO SUPERSÔNICO", "#54d8ff", 1);
+    },
+    "boys-deep-allies": (game) => {
+      const p = game.player;
+      for (let index = 0; index < 4; index++) game.drones.push({ a: index / 4 * Math.PI * 2, d: 92 + index % 2 * 14, t: 8, cd: index * 0.12, x: p.x, y: p.y, ang: 0, color: "#4de0c8", dmg: 38 });
+      game.shieldT = Math.max(game.shieldT || 0, 2.2); game.shieldReduce = 0.24;
+      game.ripples.push({ x: p.x, y: p.y, r: 12, maxR: 155, life: 0.46, max: 0.46, color: "#4de0c8", w: 5 });
+      game.setBanner("ALIADOS DO OCEANO", "4 CRIATURAS MARINHAS · 8s", "#4de0c8", 1.35);
+    },
+    "boys-deep-tidal-wave": (game) => {
+      const aim = boysAim(game, 640); boysPulse(game, aim.x, aim.y, 260, 142, "#51cde8", 0.8, false);
+      game.ripples.push({ x: aim.x, y: aim.y, r: 18, maxR: 320, life: 0.72, max: 0.72, color: "#4de0c8", w: 8 });
+      game.setBanner("ONDA DE MARÉ", "CORRENTEZA DE IMPACTO", "#51cde8", 1.1);
+    },
+    "boys-starlight-flash": (game) => {
+      const p = game.player; boysPulse(game, p.x, p.y, 315, 82, "#ffe58a", 1.55, true);
+      game.shieldT = Math.max(game.shieldT || 0, 3.2); game.shieldReduce = 0.22;
+      game.flashScreen("#fff0a4", 0.33); game.setBanner("CLARÃO CEGANTE", "ESCUDO LUMINOSO ATIVO", "#ffe58a", 1.1);
+    },
+    "boys-starlight-fan": (game) => {
+      const p = game.player, aim = boysAim(game, 850), angle = Math.atan2(aim.y - p.y, aim.x - p.x);
+      for (const offset of [-0.22, 0, 0.22]) boysRay(game, angle + offset, 850, 25, 76, "#ffe58a", 0.78);
+      game.flashScreen("#fff2b2", 0.18); game.setBanner("CANALIZAR ELETRICIDADE", "TRÊS FEIXES LUMINOSOS", "#ffe58a", 1.05);
+    },
+    "boys-maeve-parry": (game) => {
+      const p = game.player; game.parryT = Math.max(game.parryT || 0, 2.1); game.shieldT = Math.max(game.shieldT || 0, 3.6);
+      game.shieldReduce = 0.12; p.inv = Math.max(p.inv || 0, 0.45);
+      boysPulse(game, p.x, p.y, 205, 108, "#f0c978", 0.4, true);
+      game.setBanner("GUARDA DA RAINHA", "PROJÉTEIS REBATIDOS", "#f0c978", 1.1);
+    },
+    "boys-maeve-charge": (game) => {
+      const p = game.player, startX = p.x, startY = p.y, aim = boysAim(game, 560);
+      const dx = aim.x - startX, dy = aim.y - startY, length = Math.hypot(dx, dy) || 1, travel = Math.min(475, length);
+      const endX = Math.max(p.r + 18, Math.min(game.worldW - p.r - 18, startX + dx / length * travel));
+      const endY = Math.max(p.r + 18, Math.min(game.worldH - p.r - 18, startY + dy / length * travel));
+      boysSegmentHit(game, startX, startY, endX, endY, 74, 176, "#f07c83", 0.72);
+      p.x = endX; p.y = endY; p.inv = Math.max(p.inv || 0, 0.9); game.shake = Math.max(game.shake || 0, 12);
+      game.setBanner("INVESTIDA HEROICA", "A LINHA DE FRENTE CEDE", "#f07c83", 1);
+    },
+    "boys-noir-shadow-step": (game) => {
+      const p = game.player, oldX = p.x, oldY = p.y, aim = boysAim(game, 510);
+      const dx = aim.x - oldX, dy = aim.y - oldY, length = Math.hypot(dx, dy) || 1, travel = Math.min(430, length);
+      p.x = Math.max(p.r + 18, Math.min(game.worldW - p.r - 18, oldX + dx / length * travel));
+      p.y = Math.max(p.r + 18, Math.min(game.worldH - p.r - 18, oldY + dy / length * travel));
+      p.inv = Math.max(p.inv || 0, 1.2); game.invisT = Math.max(game.invisT || 0, 3.4);
+      boysPulse(game, p.x, p.y, 175, 126, "#c8d4e2", 0.5, false);
+      game.ripples.push({ x: oldX, y: oldY, r: 10, maxR: 100, life: 0.32, max: 0.32, color: "#c8d4e2", w: 4 });
+      game.setBanner("PASSO DAS SOMBRAS", "BLACK NOIR DESAPARECE", "#c8d4e2", 1.05);
+    },
+    "boys-noir-blades": (game) => {
+      const p = game.player, aim = boysAim(game, 820), angle = Math.atan2(aim.y - p.y, aim.x - p.x);
+      for (let index = 0; index < 5; index++) {
+        const shotAngle = angle + (index - 2) * 0.105;
+        game.spawnPBullet(p.x, p.y, Math.cos(shotAngle) * 1370, Math.sin(shotAngle) * 1370, 41 * (game.powerMul?.() || 1), 6, 1.65, 10, "#c8d4e2", true);
+      }
+      game.setBanner("CHUVA DE LÂMINAS", "5 FACAS PERFURANTES", "#c8d4e2", 0.9);
+    },
+    "boys-butcher-temp-v": (game) => {
+      const p = game.player; game.rageT = 7; game.rageDmg = 1.62; game.rageArmor = 3; game.rageRegen = 24; game.rageZoneDps = 26;
+      p.hp = Math.min(p.maxHp, p.hp + 18); p.inv = Math.max(p.inv || 0, 0.6);
+      game.flashScreen("#e85a4b", 0.24); game.burst(p.x, p.y, "#e85a4b", 24, 330);
+      game.setBanner("V-24: BRUTALIDADE", "DANO · ARMADURA · REGENERAÇÃO", "#e85a4b", 1.3);
+    },
+    "boys-butcher-laser": (game) => {
+      const p = game.player, aim = boysAim(game, 880), angle = Math.atan2(aim.y - p.y, aim.x - p.x);
+      for (const offset of [-0.13, 0, 0.13]) boysRay(game, angle + offset, 880, 23, 68, "#ff6255", 0.88);
+      game.beamBoostT = Math.max(game.beamBoostT || 0, 1.2); game.flashScreen("#ff6255", 0.2);
+      game.setBanner("VISÃO DE CALOR V-24", "TRÊS FEIXES OCULARES", "#ff6255", 1);
+    },
+    "boys-hughie-teleport": (game) => {
+      const p = game.player, oldX = p.x, oldY = p.y, aim = boysAim(game, 680);
+      const dx = aim.x - oldX, dy = aim.y - oldY, length = Math.hypot(dx, dy) || 1, travel = Math.min(575, length);
+      p.x = Math.max(p.r + 18, Math.min(game.worldW - p.r - 18, oldX + dx / length * travel));
+      p.y = Math.max(p.r + 18, Math.min(game.worldH - p.r - 18, oldY + dy / length * travel));
+      p.inv = Math.max(p.inv || 0, 1.1); boysPulse(game, oldX, oldY, 120, 54, "#9eddf2", 0.2, true);
+      boysPulse(game, p.x, p.y, 180, 88, "#9eddf2", 0.45, true); game.updateCamera?.(1);
+      game.setBanner("TELEPORTE", "HUGHIE REPOSICIONADO", "#9eddf2", 1);
+    },
+    "boys-hughie-phase": (game) => {
+      const p = game.player; game.invisT = Math.max(game.invisT || 0, 1.8); p.inv = Math.max(p.inv || 0, 1.8);
+      game.timeStopT = Math.max(game.timeStopT || 0, 0.55); boysPulse(game, p.x, p.y, 260, 94, "#bfeafa", 0.85, true);
+      game.flashScreen("#d4f4ff", 0.25); game.setBanner("FASE DE EMERGÊNCIA", "A ARENA PERDE HUGHIE DE VISTA", "#bfeafa", 1.1);
+    },
+  };
+
+  const originalBoysSignature = fp.prototype.runHeroSignature;
+  if (typeof originalBoysSignature === "function") fp.prototype.runHeroSignature = function (special, ...args) {
+    const handler = boysMoveHandlers[special?.params?.move];
+    if (!handler || !this.dlc || !boysIdSet.has(this.cls?.id)) return originalBoysSignature.call(this, special, ...args);
+    return handler(this, special);
+  };
+
+  const originalBoysPassives = fp.prototype.updatePassives;
+  if (typeof originalBoysPassives === "function") fp.prototype.updatePassives = function (dt, ...args) {
+    const result = originalBoysPassives.call(this, dt, ...args);
+    if (!this.dlc || !this.player?.alive || this.status !== "playing" || !boysIdSet.has(this.cls?.id)) return result;
+    const p = this.player, delta = Math.max(0, Math.min(0.1, Number(dt) || 0));
+    switch (this.cls.id) {
+      case "homelander": p.hp = Math.min(p.maxHp, p.hp + 0.38 * delta); break;
+      case "atrain":
+        if (Math.hypot(p.vx || 0, p.vy || 0) > 65 && this.buffT < 0.2) {
+          this.buffT = 0.22; this.buffSpeed = 1.12; this.buffRate = 1.08; this.buffDmg = 1.02;
+        }
+        break;
+      case "thedeep": p.hp = Math.min(p.maxHp, p.hp + 0.48 * delta); break;
+      case "starlight":
+        this._boysLightCharge = (this._boysLightCharge || 0) + delta;
+        if (this._boysLightCharge >= 8) {
+          this._boysLightCharge = 0; this.shieldT = Math.max(this.shieldT || 0, 1.25); this.shieldReduce = 0.24;
+          this.ripples.push({ x: p.x, y: p.y, r: 10, maxR: 92, life: 0.42, max: 0.42, color: "#ffe58a", w: 4 });
+        }
+        break;
+      case "blacknoir": if (p.dashT > 0) this.invisT = Math.max(this.invisT || 0, 0.12); break;
+      case "butcher": if ((this.rageT || 0) <= 0) this.rageDmg = p.hp / Math.max(1, p.maxHp) < 0.48 ? 1.18 : 1; break;
+      default: break;
+    }
+    return result;
+  };
+
+  const originalBoysHurtPlayer = fp.prototype.hurtPlayer;
+  if (typeof originalBoysHurtPlayer === "function") fp.prototype.hurtPlayer = function (damage, ...args) {
+    if (this.dlc && this.cls?.id === "maeve") damage *= 0.88;
+    else if (this.dlc && this.cls?.id === "hughie") damage *= 0.9;
+    return originalBoysHurtPlayer.call(this, damage, ...args);
+  };
+
+  const originalBoysStartRun = fp.prototype.startRun;
+  if (typeof originalBoysStartRun === "function") fp.prototype.startRun = function (...args) {
+    const boysMode = window.__kuroExpansion === "theboys";
+    if (boysMode) window.__kuroStoryLaunch = null;
+    const result = originalBoysStartRun.apply(this, args);
+    if (boysMode) {
+      this.storyMode = false; this.storyMission = null; this.storyMissionComplete = false; this.storyPendingCutscene = null;
+      this.campaignScene = null; this.campaignFreeze = 0; this._voidCorruptionActive = false; this.voidCorruption = 0;
+    }
+    return result;
+  };
+})();
+
 
 sp.createRoot(document.getElementById("root")).render(v.jsx(fe.StrictMode,{children:v.jsx(l2,{})}));
 </script>
