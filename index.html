@@ -9911,8 +9911,10 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
 
 /* Cached orb portraits keep the hand-painted sphere art crisp while removing per-frame gradients. */
 (() => {
-  const rawHero = drawHeroLook;
-  const rawBoss = drawBossAvatar;
+  const sphereArt = window.__kuroSphereArt;
+  const rawHero = sphereArt?.drawHeroLook;
+  const rawBoss = sphereArt?.drawBossAvatar;
+  if (typeof rawHero !== "function" || typeof rawBoss !== "function") return;
   const spriteCache = new Map();
   const spriteSize = 96;
   const spriteCenter = spriteSize * 0.5;
@@ -9981,15 +9983,14 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     return undefined;
   };
 
-  drawHeroLook = function (ctx, id, time = 0, hurt = false, scale = 1) {
-    return drawCachedSphere(ctx, "hero", id, time, hurt, scale, rawHero);
-  };
-  drawBossAvatar = function (ctx, id, time = 0, hurt = false, scale = 1) {
-    return drawCachedSphere(ctx, "boss", id, time, hurt, scale, rawBoss);
-  };
-  try {
-    window.__kuroSphereArt = Object.freeze({ drawHeroLook, drawBossAvatar });
-  } catch {}
+  const cachedHeroLook = (ctx, id, time = 0, hurt = false, scale = 1) =>
+    drawCachedSphere(ctx, "hero", id, time, hurt, scale, rawHero);
+  const cachedBossAvatar = (ctx, id, time = 0, hurt = false, scale = 1) =>
+    drawCachedSphere(ctx, "boss", id, time, hurt, scale, rawBoss);
+  window.__kuroSphereArt = Object.freeze({
+    drawHeroLook: cachedHeroLook,
+    drawBossAvatar: cachedBossAvatar,
+  });
   window.__kuroOrbSpriteCache = spriteCache;
 
   const previousPlayerDraw = fp?.prototype?.drawPlayer;
