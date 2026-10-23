@@ -3608,6 +3608,61 @@ Error generating stack: `+l.message+`
     this.ravenPrecogUsed = false;
     return originalHeroTrainingResetPowers.apply(this, args);
   };
+
+  function addSphereSheen(ctx, scale, radius, tint) {
+    if (!ctx?.createRadialGradient) return;
+    const factor = Math.max(0.2, Number(scale) || 1);
+    ctx.save();
+    ctx.scale(factor, factor);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.15, 0, Math.PI * 2);
+    ctx.clip();
+    const gloss = ctx.createRadialGradient(-7, -10, 1, -5, -7, radius * 1.25);
+    gloss.addColorStop(0, "rgba(255,255,255,.56)");
+    gloss.addColorStop(0.22, "rgba(255,255,255,.16)");
+    gloss.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = gloss;
+    ctx.fillRect(-radius, -radius, radius * 2, radius * 2);
+    ctx.restore();
+    ctx.save();
+    ctx.scale(factor, factor);
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.38;
+    ctx.strokeStyle = tint;
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.8, -2.55, -1.58);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  const baseDrawHeroLook = drawHeroLook;
+  drawHeroLook = function (ctx, id, time = 0, hurt = false, scale = 1) {
+    const result = baseDrawHeroLook(ctx, id, time, hurt, scale);
+    const tint = {
+      mago: "#8798ff", atirador: "#d9e3f2", velocista: "#fff2a0",
+      bruto: "#9bdd5d", robo: "#ff7b61", samurai: "#ff8e84",
+      engenheira: "#ffe580", oraculo: "#a97cf3", necromante: "#a67aff",
+      telepata: "#ffad6c", criomante: "#c4f6ff", sentinela: "#fff0a1",
+    }[id] || "#8fe9ff";
+    addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint);
+    return result;
+  };
+
+  const baseDrawBossAvatar = drawBossAvatar;
+  drawBossAvatar = function (ctx, id, time = 0, hurt = false, scale = 1) {
+    const result = baseDrawBossAvatar(ctx, id, time, hurt, scale);
+    const bossTint = {
+      redskull: "#ff7770", mysterio: "#9effd5", magneto: "#c19aff",
+      ultron: "#f5fbff", thanos: "#c89df0", void: "#b69cff",
+    }[id] || "#f07179";
+    addSphereSheen(ctx, scale * (bossSizeMultipliers[id] || 1), 22, hurt ? "#ffffff" : bossTint);
+    return result;
+  };
+
+  window.__kuroSphereArt = Object.freeze({ drawHeroLook, drawBossAvatar });
+
 })();
 /* O COLAPSO DO NEXUS — campaign layer for the existing single-file game. */
 (() => {
@@ -7673,85 +7728,17 @@ window.__nexusArtData = ["data:image/jpeg;base64,/9j/2wBDAAUDBAQEAwUEBAQFBQUGBww
     return replace(tree);
   };
 
-  function addSphereSheen(ctx, scale, radius, tint) {
-    if (!ctx?.createRadialGradient) return;
-    const factor = Math.max(0.2, Number(scale) || 1);
-    ctx.save();
-    ctx.scale(factor, factor);
-    ctx.beginPath();
-    ctx.arc(0, 0, radius - 0.15, 0, Math.PI * 2);
-    ctx.clip();
-    const gloss = ctx.createRadialGradient(-7, -10, 1, -5, -7, radius * 1.25);
-    gloss.addColorStop(0, "rgba(255,255,255,.56)");
-    gloss.addColorStop(0.22, "rgba(255,255,255,.16)");
-    gloss.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.globalCompositeOperation = "screen";
-    ctx.fillStyle = gloss;
-    ctx.fillRect(-radius, -radius, radius * 2, radius * 2);
-    ctx.restore();
-    ctx.save();
-    ctx.scale(factor, factor);
-    ctx.globalCompositeOperation = "screen";
-    ctx.globalAlpha = 0.38;
-    ctx.strokeStyle = tint;
-    ctx.lineWidth = 1.15;
-    ctx.beginPath();
-    ctx.arc(0, 0, radius - 0.8, -2.55, -1.58);
-    ctx.stroke();
-    ctx.restore();
-  }
-  const originalDrawHeroLook = drawHeroLook;
-  drawHeroLook = function (ctx, id, time = 0, hurt = false, scale = 1) {
-    const result = originalDrawHeroLook(ctx, id, time, hurt, scale);
-    const tint =
-      {
-        mago: "#8798ff",
-        atirador: "#d9e3f2",
-        velocista: "#fff2a0",
-        bruto: "#9bdd5d",
-        robo: "#ff7b61",
-        samurai: "#ff8e84",
-        engenheira: "#ffe580",
-        oraculo: "#a97cf3",
-        necromante: "#a67aff",
-        telepata: "#ffad6c",
-        criomante: "#c4f6ff",
-        sentinela: "#fff0a1",
-      }[id] || "#8fe9ff";
-    addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint);
-    return result;
-  };
-  const originalDrawBossAvatar = drawBossAvatar;
-  drawBossAvatar = function (ctx, id, time = 0, hurt = false, scale = 1) {
-    const result = originalDrawBossAvatar(ctx, id, time, hurt, scale);
-    const bossTint =
-      {
-        redskull: "#ff7770",
-        mysterio: "#9effd5",
-        magneto: "#c19aff",
-        ultron: "#f5fbff",
-        thanos: "#c89df0",
-        void: "#b69cff",
-      }[id] || "#f07179";
-    addSphereSheen(
-      ctx,
-      scale * (bossSizeMultipliers[id] || 1),
-      22,
-      hurt ? "#ffffff" : bossTint,
-    );
-    return result;
-  };
-
   function paintCineOrb(canvas, id, isBoss) {
     const ctx = canvas?.getContext?.("2d");
-    if (!ctx) return;
+    const art = window.__kuroSphereArt;
+    if (!ctx || !art) return;
     canvas.width = 168;
     canvas.height = 168;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(84, 84);
-    if (isBoss) drawBossAvatar(ctx, id || "void", 0, false, 2.45);
-    else drawHeroLook(ctx, id || "mago", 0, false, 2.45);
+    if (isBoss) art.drawBossAvatar(ctx, id || "void", 0, false, 2.45);
+    else art.drawHeroLook(ctx, id || "mago", 0, false, 2.45);
     ctx.restore();
   }
 
