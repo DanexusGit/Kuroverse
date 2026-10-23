@@ -110,52 +110,52 @@ Error generating stack: `+l.message+`
     const cape = capes[id];
     if (cape) {
       c.beginPath();
-      c.moveTo(-12, -12);
-      c.quadraticCurveTo(-27, -23, -33, -9);
-      c.quadraticCurveTo(-36, 4, -26, 17);
-      c.quadraticCurveTo(-22, 20, -17, 14);
-      c.quadraticCurveTo(-23, 6, -17, -1);
-      c.quadraticCurveTo(-13, -6, -12, -12);
+      c.moveTo(-12, -11);
+      c.quadraticCurveTo(-21, -19, -27, -8);
+      c.quadraticCurveTo(-30, 2, -23, 14);
+      c.quadraticCurveTo(-20, 17, -17, 13);
+      c.quadraticCurveTo(-21, 6, -17, 0);
+      c.quadraticCurveTo(-13, -5, -12, -11);
       c.closePath();
       c.fillStyle = color(cape[0]);
       c.fill();
       c.strokeStyle = color(ink);
       c.lineWidth = 1.7;
       c.stroke();
-      line(c, [[-20, -12], [-28, -5], [-24, 9]], color(cape[1]), 1.25);
+      line(c, [[-18, -11], [-24, -4], [-22, 8]], color(cape[1]), 1.1);
     }
 
     if (id === "engenheira") {
-      const arms = [
-        [[-12, -10], [-22, -20], [-30, -16]],
-        [[-14, -3], [-27, -5], [-31, 1]],
-        [[-13, 7], [-24, 17], [-30, 14]],
-        [[8, 14], [18, 22], [26, 17]],
+      const circuits = [
+        [[-13, -11], [-18, -14], [-22, -12]],
+        [[-16, -1], [-21, -3], [-23, 0]],
+        [[-13, 10], [-19, 14], [-22, 12]],
+        [[13, 10], [18, 13], [21, 10]],
       ];
-      arms.forEach((arm, index) => {
-        line(c, arm, "#222a31", 5);
-        line(c, arm, color(index % 2 ? "#8c5d22" : "#80d996"), 1.5);
-        oval(c, arm[2][0], arm[2][1], 2.7, 2.7, color("#e6c96c"), "#252a32", 1);
+      circuits.forEach((circuit, index) => {
+        line(c, circuit, "#26333a", 3.4);
+        line(c, circuit, color(index % 2 ? "#9b6b31" : "#80d996"), 1.25);
+        oval(c, circuit[2][0], circuit[2][1], 2.1, 2.1, color("#f0d782"), "#394047", 0.8);
       });
     }
     if (id === "samurai") {
-      line(c, [[-18, -18], [-28, -27]], "#31323b", 3.2);
-      line(c, [[-18, 18], [-28, 27]], "#31323b", 3.2);
-      line(c, [[-19, -19], [-28, -28]], "#d8e6f2", 1.1);
-      line(c, [[-19, 19], [-28, 28]], "#d8e6f2", 1.1);
+      line(c, [[-17, -16], [-22, -22]], "#31323b", 2.6);
+      line(c, [[-17, 16], [-22, 22]], "#31323b", 2.6);
+      line(c, [[-18, -17], [-22, -22]], "#d8e6f2", 0.9);
+      line(c, [[-18, 17], [-22, 22]], "#d8e6f2", 0.9);
     }
     if (id === "velocista") {
-      poly(c, [[-14, -10], [-22, -17], [-24, -12], [-19, -6]], color("#d53a39"), ink, 1.2);
-      poly(c, [[-14, 10], [-22, 17], [-24, 12], [-19, 6]], color("#d53a39"), ink, 1.2);
+      poly(c, [[-14, -9], [-20, -14], [-22, -11], [-18, -6]], color("#d53a39"), ink, 1);
+      poly(c, [[-14, 9], [-20, 14], [-22, 11], [-18, 6]], color("#d53a39"), ink, 1);
     }
     if (id === "necromante") {
-      poly(c, [[-13, -14], [-20, -25], [-5, -19]], color("#151b26"), ink, 1.5);
-      poly(c, [[7, -18], [20, -26], [16, -11]], color("#151b26"), ink, 1.5);
+      poly(c, [[-13, -14], [-18, -23], [-5, -18]], color("#151b26"), ink, 1.25);
+      poly(c, [[7, -17], [17, -23], [15, -11]], color("#151b26"), ink, 1.25);
     }
     if (id === "criomante") {
-      poly(c, [[-15, -14], [-19, -25], [-9, -20]], color("#baf0ff"), "#e8ffff", 1.2);
-      poly(c, [[10, -15], [17, -24], [17, -12]], color("#a0eaff"), "#e8ffff", 1.2);
-      poly(c, [[-13, 15], [-18, 24], [-6, 19]], color("#a0eaff"), "#e8ffff", 1.2);
+      poly(c, [[-14, -14], [-17, -22], [-9, -19]], color("#baf0ff"), "#e8ffff", 1);
+      poly(c, [[10, -15], [16, -22], [16, -12]], color("#a0eaff"), "#e8ffff", 1);
+      poly(c, [[-12, 14], [-16, 21], [-6, 18]], color("#a0eaff"), "#e8ffff", 1);
     }
 
     const gradient = c.createRadialGradient(-7, -9, 1.5, 0, 0, radius * 1.35);
@@ -167,8 +167,8 @@ Error generating stack: `+l.message+`
     c.arc(0, 0, radius, 0, TAU);
     c.fillStyle = gradient;
     c.fill();
-    c.strokeStyle = ink;
-    c.lineWidth = 2.2;
+    c.strokeStyle = hurt ? "#ffffff" : "rgba(10,13,22,.72)";
+    c.lineWidth = 1.5;
     c.stroke();
     c.save();
     c.beginPath();
@@ -332,8 +332,8 @@ Error generating stack: `+l.message+`
     c.restore();
 
     if (id === "sentinela") {
-      poly(c, [[-10, -16], [-8, -23], [-2, -20], [3, -25], [8, -20], [14, -22], [15, -15], [7, -12], [-2, -14]], color("#e7c86b"), "#876832", 1.2);
-      line(c, [[-6, -19], [-1, -16], [5, -20], [10, -17]], color("#fff0aa"), 1.1);
+      poly(c, [[-9, -15], [-7, -20], [-2, -18], [2, -22], [7, -18], [11, -19], [12, -14], [6, -11], [-2, -13]], color("#e7c86b"), "#876832", 1);
+      line(c, [[-5, -17], [-1, -15], [4, -18], [8, -16]], color("#fff0aa"), 0.9);
     } else if (id === "bruto") {
       line(c, [[-9, -17], [-5, -21], [-1, -18], [4, -23], [8, -17]], color("#1a211d"), 2.6);
     } else if (id === "robo") {
@@ -439,42 +439,42 @@ Error generating stack: `+l.message+`
     const cape = capes[id];
     if (cape) {
       c.beginPath();
-      c.moveTo(-12, -13);
-      c.quadraticCurveTo(-28, -22, -32, -7);
-      c.quadraticCurveTo(-35, 5, -25, 17);
-      c.quadraticCurveTo(-20, 21, -16, 13);
-      c.quadraticCurveTo(-23, 6, -17, -1);
+      c.moveTo(-12, -12);
+      c.quadraticCurveTo(-22, -19, -28, -6);
+      c.quadraticCurveTo(-30, 3, -23, 14);
+      c.quadraticCurveTo(-19, 18, -15, 12);
+      c.quadraticCurveTo(-21, 5, -16, -1);
       c.closePath();
       c.fillStyle = color(cape[0]);
       c.fill();
       c.strokeStyle = color(ink);
       c.lineWidth = 1.8;
       c.stroke();
-      line(c, [[-21, -11], [-28, -4], [-24, 10]], color(cape[1]), 1.3);
+      line(c, [[-19, -10], [-24, -3], [-22, 9]], color(cape[1]), 1.05);
     }
     if (id === "void") {
-      line(c, [[-13, -14], [-25, -21], [-29, -16]], "#8a6ccc", 2.1);
-      line(c, [[-14, 12], [-27, 20], [-31, 14]], "#574080", 2.4);
-      line(c, [[10, -15], [23, -23], [27, -17]], "#8a6ccc", 2.1);
+      line(c, [[-13, -13], [-22, -19], [-25, -15]], "#8a6ccc", 1.7);
+      line(c, [[-14, 11], [-23, 17], [-26, 13]], "#574080", 1.8);
+      line(c, [[10, -14], [20, -20], [24, -16]], "#8a6ccc", 1.7);
     }
     if (id === "monolith") {
-      poly(c, [[-14, -14], [-22, -27], [-7, -22], [-5, -15]], color("#5b4a85"), ink, 1.4);
-      poly(c, [[10, -15], [20, -27], [22, -12], [15, -8]], color("#7f69b0"), ink, 1.4);
-      poly(c, [[-12, 13], [-20, 25], [-5, 20]], color("#514174"), ink, 1.2);
+      poly(c, [[-14, -14], [-19, -23], [-7, -20], [-5, -15]], color("#5b4a85"), ink, 1.15);
+      poly(c, [[10, -15], [18, -23], [20, -12], [15, -8]], color("#7f69b0"), ink, 1.15);
+      poly(c, [[-12, 12], [-18, 21], [-5, 18]], color("#514174"), ink, 1);
     }
     if (id === "hydra") {
       for (const x of [-10, 0, 10]) {
         oval(c, x, -20, 4.2, 5, color("#476d32"), ink, 1.1);
-        poly(c, [[x - 2, -23], [x, -29], [x + 2, -23]], color("#d99043"), ink, 0.8);
+        poly(c, [[x - 2, -23], [x, -26], [x + 2, -23]], color("#d99043"), ink, 0.65);
       }
     }
     if (id === "warden") {
-      poly(c, [[-16, -16], [-22, -27], [-12, -21], [-7, -15]], color("#2b2029"), "#592136", 1.2);
-      poly(c, [[8, -17], [17, -29], [17, -17], [12, -12]], color("#2b2029"), "#592136", 1.2);
+      poly(c, [[-16, -16], [-20, -24], [-12, -20], [-7, -15]], color("#2b2029"), "#592136", 1);
+      poly(c, [[8, -17], [15, -24], [16, -16], [12, -12]], color("#2b2029"), "#592136", 1);
     }
     if (id === "ultron") {
-      line(c, [[-5, -21], [-7, -28]], color("#77828e"), 2);
-      oval(c, -7, -29, 2, 2, color("#ff525b"), ink, 0.8);
+      line(c, [[-5, -20], [-7, -25]], color("#77828e"), 1.7);
+      oval(c, -7, -26, 1.6, 1.6, color("#ff525b"), ink, 0.7);
     }
     const gradient = c.createRadialGradient(-7, -9, 1.5, 0, 0, radius * 1.35);
     gradient.addColorStop(0, hurt ? "#ffffff" : palette.light);
@@ -485,8 +485,8 @@ Error generating stack: `+l.message+`
     c.arc(0, 0, radius, 0, TAU);
     c.fillStyle = gradient;
     c.fill();
-    c.strokeStyle = ink;
-    c.lineWidth = 2.3;
+    c.strokeStyle = hurt ? "#ffffff" : "rgba(10,11,18,.76)";
+    c.lineWidth = 1.55;
     c.stroke();
     c.save();
     c.beginPath();
@@ -614,10 +614,10 @@ Error generating stack: `+l.message+`
     c.restore();
 
     if (id === "thanos") {
-      oval(c, 20, 14, 6.4, 8, color("#c69332"), "#332414", 1.5);
-      for (const [x, y, gem] of [[18, 10, "#e7464c"], [23, 11, "#4dd9ff"], [19, 15, "#8b55e9"], [23, 18, "#65d957"]])
-        oval(c, x, y, 1.5, 1.7, color(gem), "#fff0ae", 0.5);
-      line(c, [[15, 10], [11, 13], [14, 19]], color("#f1d36a"), 1.6);
+      oval(c, 18, 13, 4.8, 5.6, color("#c69332"), "#332414", 1.2);
+      for (const [x, y, gem] of [[16, 10, "#e7464c"], [20, 10, "#4dd9ff"], [16, 14, "#8b55e9"], [20, 15, "#65d957"]])
+        oval(c, x, y, 0.95, 1.1, color(gem), "#fff0ae", 0.4);
+      line(c, [[14, 10], [11, 12], [13, 16]], color("#f1d36a"), 1.3);
     }
     if (id === "mysterio") {
       c.globalAlpha = hurt ? 0.7 : 0.42;
@@ -3609,31 +3609,293 @@ Error generating stack: `+l.message+`
     return originalHeroTrainingResetPowers.apply(this, args);
   };
 
-  function addSphereSheen(ctx, scale, radius, tint) {
-    if (!ctx?.createRadialGradient) return;
+  function tintWithAlpha(hex, alpha) {
+    const match = /^#?([a-f\d]{6})$/i.exec(hex || "");
+    if (!match) return `rgba(143,233,255,${alpha})`;
+    const value = Number.parseInt(match[1], 16);
+    return `rgba(${value >> 16},${(value >> 8) & 255},${value & 255},${alpha})`;
+  }
+
+  function drawOrbGlyph(ctx, id, tint, isBoss = false) {
+    const white = "#f4f7ff";
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 1.35;
+    ctx.translate(0, 1.5);
+
+    if (isBoss) {
+      switch (id) {
+        case "warden":
+          poly(ctx, [[-7, 5], [-6, -3], [-2, 1], [0, -7], [3, 1], [7, -3], [6, 5]], tintWithAlpha(tint, 0.3), tint, 1.1);
+          line(ctx, [[-5, 7], [5, 7]], white, 1);
+          break;
+        case "hydra":
+          line(ctx, [[-6, 4], [-4, -1], [0, -4], [4, -1], [6, 4]], tint, 1.4);
+          for (const [x, y] of [[-5, 4], [0, -4], [5, 4]]) oval(ctx, x, y, 1.7, 1.7, white, tint, 0.7);
+          break;
+        case "monolith":
+          poly(ctx, [[0, -8], [6, -1], [3, 7], [-3, 7], [-6, -1]], tintWithAlpha(tint, 0.35), tint, 1.2);
+          line(ctx, [[0, -5], [0, 5], [-3, -1], [0, 1], [3, -1]], white, 0.9);
+          break;
+        case "reaper":
+          ctx.beginPath();
+          ctx.arc(0, 1, 7, -1.25, 1.25);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          line(ctx, [[3, -5], [6, -7]], white, 1.1);
+          oval(ctx, -3, 2, 1.1, 1.1, white, null, 0);
+          break;
+        case "redskull":
+          oval(ctx, 0, -1, 5.5, 6.2, "rgba(247,231,218,.92)", tint, 0.9);
+          oval(ctx, -2.2, -2, 1.25, 1.55, "#35111a", null, 0);
+          oval(ctx, 2.2, -2, 1.25, 1.55, "#35111a", null, 0);
+          line(ctx, [[-3, 3], [3, 3]], tint, 1.15);
+          line(ctx, [[-1.5, 3], [-1.5, 5]], tint, 0.8);
+          line(ctx, [[1.5, 3], [1.5, 5]], tint, 0.8);
+          break;
+        case "mysterio":
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 7.5, 4.8, -0.28, 0, TAU);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 1.35;
+          ctx.stroke();
+          oval(ctx, 0, 0, 2.2, 2.2, white, tint, 0.8);
+          sparkle(ctx, 0, 0, 1.4, tint);
+          break;
+        case "magneto":
+          ctx.beginPath();
+          ctx.moveTo(-6, -5);
+          ctx.lineTo(-6, 2);
+          ctx.quadraticCurveTo(-6, 7, 0, 7);
+          ctx.quadraticCurveTo(6, 7, 6, 2);
+          ctx.lineTo(6, -5);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+          line(ctx, [[-8, -5], [-3, -5]], white, 1.3);
+          line(ctx, [[3, -5], [8, -5]], white, 1.3);
+          break;
+        case "ultron":
+          poly(ctx, [[-8, -3], [-4, -5], [0, -3], [4, -5], [8, -3], [6, 3], [0, 5], [-6, 3]], tintWithAlpha(tint, 0.28), tint, 0.9);
+          line(ctx, [[-5, -1], [-1, 0]], "#ff5864", 1.8);
+          line(ctx, [[1, 0], [5, -1]], "#ff5864", 1.8);
+          line(ctx, [[-3, 4], [0, 5], [3, 4]], white, 0.75);
+          break;
+        case "thanos": {
+          ctx.beginPath();
+          ctx.arc(0, 1, 7, Math.PI * 1.08, Math.PI * 1.93);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          const gems = ["#ff626b", "#74eaff", "#bb82ff", "#72e57b", "#ffcf59"];
+          gems.forEach((gem, index) => oval(ctx, -5 + index * 2.5, 1 + Math.abs(2 - index) * 0.4, 1.05, 1.25, gem, "#fff1bd", 0.4));
+          break;
+        }
+        case "void":
+          oval(ctx, 0, 0, 4.3, 4.3, "#07050c", tint, 1.1);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 8, 3.6, -0.45, 0, TAU);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 1.35;
+          ctx.stroke();
+          sparkle(ctx, 0, 0, 2.2, white);
+          break;
+      }
+    } else {
+      switch (id) {
+        case "mago":
+          poly(ctx, [[0, -8], [6, 0], [0, 8], [-6, 0]], tintWithAlpha(tint, 0.32), tint, 1.1);
+          line(ctx, [[0, -5], [0, 5]], white, 0.9);
+          oval(ctx, 0, 0, 1.5, 1.5, white, null, 0);
+          break;
+        case "atirador":
+          ctx.beginPath();
+          ctx.arc(0, 0, 5.3, 0, TAU);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 1.25;
+          ctx.stroke();
+          line(ctx, [[-8, 0], [-2, 0]], white, 1);
+          line(ctx, [[2, 0], [8, 0]], white, 1);
+          line(ctx, [[0, -8], [0, -2]], white, 1);
+          line(ctx, [[0, 2], [0, 8]], white, 1);
+          oval(ctx, 0, 0, 1.7, 1.7, tint, white, 0.55);
+          break;
+        case "velocista":
+          poly(ctx, [[1, -8], [-5, 1], [-1, 1], [-3, 8], [6, -2], [2, -2]], tint, white, 0.8);
+          break;
+        case "bruto":
+          poly(ctx, [[0, -8], [7, -5], [6, 3], [0, 8], [-6, 3], [-7, -5]], tintWithAlpha(tint, 0.3), tint, 1.15);
+          line(ctx, [[-4, -1], [0, 3], [4, -1]], white, 1.25);
+          break;
+        case "robo":
+          poly(ctx, [[0, -8], [6, -4], [6, 4], [0, 8], [-6, 4], [-6, -4]], tintWithAlpha(tint, 0.2), tint, 1.05);
+          for (const [x, y] of [[0, -9], [8, 0], [0, 9], [-8, 0]]) line(ctx, [[x * 0.65, y * 0.65], [x, y]], white, 0.9);
+          oval(ctx, 0, 0, 3, 3, tint, white, 0.9);
+          break;
+        case "samurai":
+          line(ctx, [[-6, -6], [6, 6]], "#fff7ed", 2.4);
+          line(ctx, [[-6, -6], [6, 6]], tint, 1.05);
+          line(ctx, [[-7, 4], [-3, 8]], white, 1.35);
+          poly(ctx, [[0, -4], [3, 0], [0, 4], [-3, 0]], tint, white, 0.65);
+          break;
+        case "engenheira":
+          poly(ctx, [[-5, -7], [3, -7], [7, 0], [3, 7], [-5, 7], [-8, 0]], tintWithAlpha(tint, 0.25), tint, 1.1);
+          oval(ctx, 0, 0, 2.6, 2.6, white, tint, 0.8);
+          line(ctx, [[-8, -5], [-5, -3]], white, 0.8);
+          line(ctx, [[7, -4], [5, -2]], white, 0.8);
+          line(ctx, [[0, 7], [0, 9]], white, 0.8);
+          break;
+        case "oraculo":
+          ctx.beginPath();
+          ctx.moveTo(-8, 0);
+          ctx.quadraticCurveTo(0, -7, 8, 0);
+          ctx.quadraticCurveTo(0, 7, -8, 0);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 1.35;
+          ctx.stroke();
+          oval(ctx, 0, 0, 2.2, 3.1, white, tint, 0.7);
+          oval(ctx, 0, 0, 0.85, 1.3, tint, null, 0);
+          break;
+        case "necromante":
+          ctx.beginPath();
+          ctx.arc(-1, 1, 6, -1.35, 1.35);
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          line(ctx, [[2, -4], [6, -7], [5, -2]], white, 1);
+          sparkle(ctx, -4, 5, 1.4, tint);
+          break;
+        case "telepata":
+          line(ctx, [[0, 7], [0, -6]], tint, 1.8);
+          line(ctx, [[0, -5], [-3, -8], [-7, -7], [-8, -3], [-6, 0], [-3, 1]], white, 1.25);
+          line(ctx, [[0, -5], [3, -8], [7, -7], [8, -3], [6, 0], [3, 1]], white, 1.25);
+          line(ctx, [[-4, 7], [4, 7]], tint, 1.5);
+          break;
+        case "criomante":
+          for (let index = 0; index < 3; index++) {
+            const angle = (Math.PI * index) / 3;
+            const dx = Math.cos(angle) * 7;
+            const dy = Math.sin(angle) * 7;
+            line(ctx, [[-dx, -dy], [dx, dy]], index === 1 ? white : tint, 1.15);
+            line(ctx, [[dx * 0.55, dy * 0.55], [dx * 0.3 - dy * 0.22, dy * 0.3 + dx * 0.22]], white, 0.8);
+            line(ctx, [[-dx * 0.55, -dy * 0.55], [-dx * 0.3 + dy * 0.22, -dy * 0.3 - dx * 0.22]], white, 0.8);
+          }
+          oval(ctx, 0, 0, 1.5, 1.5, white, null, 0);
+          break;
+        case "sentinela":
+          poly(ctx, [[0, -9], [7, -6], [6, 4], [0, 9], [-6, 4], [-7, -6]], "rgba(30,58,101,.84)", tint, 1.05);
+          line(ctx, [[4, -5], [1, -7], [-4, -6], [-5, -3], [-2, -1], [3, 0], [5, 2], [3, 5], [0, 6], [-4, 5]], "#ffe08a", 2.15);
+          break;
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawOrbPlate(ctx, id, tint, isBoss = false) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(-11.7, -8.3);
+    ctx.quadraticCurveTo(-8, -12, 0, -12);
+    ctx.quadraticCurveTo(8, -12, 11.7, -8.3);
+    ctx.lineTo(10.5, 4.8);
+    ctx.quadraticCurveTo(8.2, 10.5, 0, 13);
+    ctx.quadraticCurveTo(-8.2, 10.5, -10.5, 4.8);
+    ctx.closePath();
+    const plate = ctx.createLinearGradient(0, -12, 0, 13);
+    plate.addColorStop(0, "rgba(68,78,99,.94)");
+    plate.addColorStop(0.2, isBoss ? "rgba(24,22,35,.97)" : "rgba(20,30,48,.97)");
+    plate.addColorStop(1, "rgba(5,8,16,.98)");
+    ctx.fillStyle = plate;
+    ctx.fill();
+    ctx.strokeStyle = tintWithAlpha(tint, 0.84);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-8.5, -8.2);
+    ctx.quadraticCurveTo(0, -10.7, 8.5, -8.2);
+    ctx.strokeStyle = "rgba(255,255,255,.42)";
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+    line(ctx, [[-9.3, -4.8], [-8.1, 3.7], [-5.9, 8.2]], tintWithAlpha(tint, 0.52), 0.75);
+    line(ctx, [[9.3, -4.8], [8.1, 3.7], [5.9, 8.2]], tintWithAlpha(tint, 0.52), 0.75);
+    oval(ctx, -8.8, -7.2, 0.85, 0.85, "#f4f7ff", tint, 0.45);
+    oval(ctx, 8.8, -7.2, 0.85, 0.85, "#f4f7ff", tint, 0.45);
+
+    ctx.beginPath();
+    ctx.moveTo(-6.5, -5.2);
+    ctx.quadraticCurveTo(-3.4, -7.1, -0.7, -5.5);
+    ctx.moveTo(0.7, -5.5);
+    ctx.quadraticCurveTo(3.4, -7.1, 6.5, -5.2);
+    ctx.strokeStyle = "rgba(255,255,255,.68)";
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    drawOrbGlyph(ctx, id, tint, isBoss);
+    ctx.restore();
+  }
+
+  function addSphereSheen(ctx, scale, radius, tint, id, isBoss = false, time = 0) {
+    if (!ctx?.createRadialGradient || !ctx?.createLinearGradient) return;
     const factor = Math.max(0.2, Number(scale) || 1);
     ctx.save();
     ctx.scale(factor, factor);
+
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.16;
+    ctx.strokeStyle = tint;
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
-    ctx.arc(0, 0, radius - 0.15, 0, Math.PI * 2);
+    ctx.arc(0, 0, radius + 0.25, 0, TAU);
+    ctx.stroke();
+
+    const rim = ctx.createLinearGradient(-radius, -radius, radius, radius);
+    rim.addColorStop(0, "rgba(255,255,255,.92)");
+    rim.addColorStop(0.22, tintWithAlpha(tint, 0.9));
+    rim.addColorStop(0.58, "rgba(255,255,255,.38)");
+    rim.addColorStop(1, "rgba(4,7,14,.9)");
+    ctx.globalAlpha = 0.9;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = rim;
+    ctx.lineWidth = 1.05;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.45, 0, TAU);
+    ctx.stroke();
+
+    drawOrbPlate(ctx, id, tint, isBoss);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.75, 0, TAU);
     ctx.clip();
-    const gloss = ctx.createRadialGradient(-7, -10, 1, -5, -7, radius * 1.25);
-    gloss.addColorStop(0, "rgba(255,255,255,.56)");
-    gloss.addColorStop(0.22, "rgba(255,255,255,.16)");
+    const gloss = ctx.createRadialGradient(-8, -11, 1, -5, -8, radius * 1.18);
+    gloss.addColorStop(0, "rgba(255,255,255,.36)");
+    gloss.addColorStop(0.24, "rgba(255,255,255,.11)");
+    gloss.addColorStop(0.62, "rgba(255,255,255,.025)");
     gloss.addColorStop(1, "rgba(255,255,255,0)");
     ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.86;
     ctx.fillStyle = gloss;
     ctx.fillRect(-radius, -radius, radius * 2, radius * 2);
+    ctx.globalAlpha = 0.42;
+    ctx.fillStyle = "rgba(255,255,255,.44)";
+    ctx.beginPath();
+    ctx.ellipse(-7.2, -13.4, 7.2, 1.7, -0.43, 0, TAU);
+    ctx.fill();
     ctx.restore();
-    ctx.save();
-    ctx.scale(factor, factor);
+
     ctx.globalCompositeOperation = "screen";
     ctx.globalAlpha = 0.38;
-    ctx.strokeStyle = tint;
-    ctx.lineWidth = 1.15;
+    ctx.strokeStyle = tintWithAlpha(tint, 0.82);
+    ctx.lineWidth = 0.9;
     ctx.beginPath();
-    ctx.arc(0, 0, radius - 0.8, -2.55, -1.58);
+    ctx.arc(0, 0, radius - 2.2, Math.PI * 0.76, Math.PI * 1.32);
     ctx.stroke();
+    ctx.globalAlpha = 0.56 + Math.sin(time * 3.2) * 0.12;
+    sparkle(ctx, radius * 0.63, -radius * 0.63, 1.45, tint);
     ctx.restore();
   }
 
@@ -3644,9 +3906,9 @@ Error generating stack: `+l.message+`
       mago: "#8798ff", atirador: "#d9e3f2", velocista: "#fff2a0",
       bruto: "#9bdd5d", robo: "#ff7b61", samurai: "#ff8e84",
       engenheira: "#ffe580", oraculo: "#a97cf3", necromante: "#a67aff",
-      telepata: "#ffad6c", criomante: "#c4f6ff", sentinela: "#fff0a1",
+      telepata: "#ffad6c", criomante: "#c4f6ff", sentinela: "#ffd86b",
     }[id] || "#8fe9ff";
-    addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint);
+    addSphereSheen(ctx, scale, 21.5, hurt ? "#ffffff" : tint, id, false, time);
     return result;
   };
 
@@ -3656,8 +3918,9 @@ Error generating stack: `+l.message+`
     const bossTint = {
       redskull: "#ff7770", mysterio: "#9effd5", magneto: "#c19aff",
       ultron: "#f5fbff", thanos: "#c89df0", void: "#b69cff",
+      warden: "#ff7281", hydra: "#d8f08a", monolith: "#d0baff", reaper: "#b4aacb",
     }[id] || "#f07179";
-    addSphereSheen(ctx, scale * (bossSizeMultipliers[id] || 1), 22, hurt ? "#ffffff" : bossTint);
+    addSphereSheen(ctx, scale * (bossSizeMultipliers[id] || 1), 22, hurt ? "#ffffff" : bossTint, id, true, time);
     return result;
   };
 
